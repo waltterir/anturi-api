@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status, Response
+from fastapi import HTTPException, status
 from sqlmodel import Session, select, desc
 from ..models.models import LohkoDB, LohkoBase
 
@@ -10,3 +10,4 @@ def create_lohko(session: Session, lohko_in: LohkoBase):
     session.commit()
     session.refresh(lohko)
     return lohko
+
