@@ -4,7 +4,6 @@ class AnturiBase(SQLModel):
     lohko_id: int
     tila: str
     mitta_tulos: int
-    ajankohta: int
 
 
 

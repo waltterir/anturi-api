@@ -13,3 +13,7 @@ def get_anturit(*, session: Session = Depends(get_session),
                 lohko_id: int | None = None, 
                 tila: str | None = None):
     return crud.get_anturit(session, id, lohko_id, tila)
+
+@router.get("/{anturi_id}", response_class=AnturiOut)
+def get_anturi_by_id(*, session: Session = Depends(get_session), anturi_id: int):
+    return crud.get_anturi_by_id(session, anturi_id)
