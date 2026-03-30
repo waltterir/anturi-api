@@ -10,9 +10,10 @@ router = APIRouter(prefix="/anturit", tags=["Anturit"])
 @router.get("/", response_model=list[AnturiOut])
 def get_anturit(*, session: Session = Depends(get_session), 
                 id: int | None = None, 
+                name: str | None = None,
                 lohko_id: int | None = None, 
                 tila: str | None = None):
-    return crud.get_anturit(session, id, lohko_id, tila)
+    return crud.get_anturit(session, id, name, lohko_id, tila)
 
 @router.get("/{anturi_id}", response_class=AnturiOut)
 def get_anturi_by_id(*, session: Session = Depends(get_session), anturi_id: int):
