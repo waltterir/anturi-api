@@ -5,10 +5,10 @@ from datetime import datetime
 
 
 def get_anturit(session: Session, 
-                id: int,
-                name: str,
-                lohko_id: int,
-                tila: str,
+                id: int | None = None,
+                name: str | None = None,
+                lohko_id: int | None = None,
+                tila: str | None = None,
                 ):
     statement = select(AnturiDB)
     if id is not None:
@@ -22,7 +22,7 @@ def get_anturit(session: Session,
 
     return session.exec(statement).all()
 
-def create_new_anturi(session: Session, anturi_in: AnturiBase):
+def create_anturi(session: Session, anturi_in: AnturiBase):
     lohko = session.get(LohkoDB, anturi_in.lohko_id)
     if not lohko: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Lohko not found")
@@ -50,14 +50,17 @@ def get_anturi_by_id(session: Session,
     if limit > 100:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Limit must be under 100")
     if start_time is not None:
-        statement = statement.where(MittausDB.ajankohta >= start_time)
+        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta >= start_time)
     if end_time is not None: 
-        statement = statement.where(MittausDB.ajankohta <= end_time)    
+        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta <= end_time)    
+    
+    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
+
     if start_time is not None and end_time is not None:
         if start_time > end_time:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Start time cannot be greater than end time")
     
-    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
+    
 
     
 
@@ -65,7 +68,7 @@ def get_anturi_by_id(session: Session,
     mittaus_statement = mittaus_statement.offset((page - 1) * limit)
     mittaus_statement = mittaus_statement.limit(limit)
     
-    mittaukset = session.exec(statement).all()
+    mittaus_statement = session.exec(mittaus_statement).all()
 
-    return {"anturi": anturi, "mittaukset": mittaukset}
+    return {"anturi": anturi, "mittaukset": mittaus_statement}
 
