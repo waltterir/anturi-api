@@ -6,7 +6,7 @@ engine = create_engine("sqlite:///database.db", echo=True,
                        connect_args=connect_args)
 
 
-def create_db():
+def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
 
 
