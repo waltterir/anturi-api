@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, Response
-from sqlmodel import Session, select, desc
-from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB
+from sqlmodel import Session, select, desc, func
+from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, LohkoBase
 from datetime import datetime
 
 
@@ -18,7 +18,9 @@ def get_anturit(session: Session,
     if lohko_id is not None:
         statement = statement.where(AnturiDB.lohko_id == lohko_id)
     if tila is not None:
-        statement = statement.where(AnturiDB.tila == tila)
+        statement = statement.where(
+        func.lower(AnturiDB.tila) == tila.lower()
+    )
 
     return session.exec(statement).all()
 
@@ -73,8 +75,20 @@ def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
-    anturi.tila = anturi_update.tila
+    if anturi_update.tila:
+        anturi.tila = anturi_update.tila
+    if anturi_update.lohko_id is not None:
+        lohko = session.get(LohkoDB, anturi_update.lohko_id)
+
+    if not lohko:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lohko not found")
+
+    anturi.lohko_id = anturi_update.lohko_id
+    
+    
     session.add(anturi)
     session.commit()
     session.refresh(anturi)
     return anturi
+
+
