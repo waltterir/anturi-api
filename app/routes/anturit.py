@@ -28,3 +28,7 @@ def get_anturi_by_id(*, session: Session = Depends(get_session),
                      page: int = 1,
                      limit: int = 10):
     return crud.get_anturi_by_id(session, anturi_id, start_time, end_time, page, limit)
+
+@router.put("/{anturi_id}", response_model=AnturiOut)
+def update_anturi(*, session: Session = Depends(get_session), anturi_id: int, anturi_update: AnturiBase):
+    return crud.update_anturi(session, anturi_id, anturi_update)

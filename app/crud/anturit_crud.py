@@ -36,13 +36,14 @@ def create_anturi(session: Session, anturi_in: AnturiBase):
 def get_anturi_by_id(session: Session, 
                      anturi_id: int, 
                      start_time: datetime | None = None, 
-                     end_time: datetime | None = None, 
+                     end_time: datetime | None = None,
                      page: int = 1, 
                      limit: int = 10):
     
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    
     if page < 1:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Page must be atleast 1")
     if limit < 1:
@@ -59,11 +60,7 @@ def get_anturi_by_id(session: Session,
     if start_time is not None and end_time is not None:
         if start_time > end_time:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Start time cannot be greater than end time")
-    
-    
-
-    
-
+        
     mittaus_statement = mittaus_statement.order_by(desc(MittausDB.ajankohta))
     mittaus_statement = mittaus_statement.offset((page - 1) * limit)
     mittaus_statement = mittaus_statement.limit(limit)
@@ -72,3 +69,12 @@ def get_anturi_by_id(session: Session,
 
     return {"anturi": anturi, "mittaukset": mittaus_statement}
 
+def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
+    anturi = session.get(AnturiDB, anturi_id)
+    if not anturi: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    anturi.tila = anturi_update.tila
+    session.add(anturi)
+    session.commit()
+    session.refresh(anturi)
+    return anturi
