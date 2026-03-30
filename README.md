@@ -1,6 +1,6 @@
 # Anturi API
 
-REST API lämpötila-anturidatan keräämiseen tehdashallilta.
+REST API lämpötila-anturidatan keräämiseen.
 
 ## Status
 
