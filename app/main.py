@@ -8,3 +8,5 @@ from .database.database import create_db
 async def lifespan(app: FastAPI):
     create_db()
     yield
+
+app = FastAPI(lifespan=lifespan)
