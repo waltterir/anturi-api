@@ -1,10 +1,23 @@
-# backend-template
+# Anturi API
 
+REST API lämpötila-anturidatan keräämiseen tehdashallilta.
 
-## Asennus
-- git clone "url.git"
-- cd projekti
-- python -m venv .venv
-- pip install -r requirements
-- .venv\Scripts\activate
-- code . 
+## Status
+
+## Ydinominaisuudet
+
+## Backend ja Arkkitehtuuri
+
+## Tech Stack
+
+## Endpointit
+
+## Run locally
+
+```md
+Option 1 (Suositeltu)
+uvicorn app.main:app --reload
+
+Option 2 (FastAPI CLI)
+fastapi dev app/main.py
+```
