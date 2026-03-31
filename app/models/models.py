@@ -10,7 +10,7 @@ class LohkoBase(SQLModel):
 
 class MittausBase(SQLModel):
     anturi_id: int
-    mittaus_arvo: int
+    mittaus_arvo: float
     aikaleima: datetime
 
 class LohkoDB(LohkoBase, table=True):
@@ -27,6 +27,7 @@ class MittausDB(MittausBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     anturi_id: int = Field(foreign_key="anturidb.id")
     anturi: "AnturiDB" = Relationship(back_populates="mittaus_tulos")
+    aikaleima: datetime
 
 class TilamuutosDB(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
