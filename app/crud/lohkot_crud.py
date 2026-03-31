@@ -19,8 +19,30 @@ def get_lohko_anturit(session: Session, lohko_id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Lohko with {lohko_id} not found"
         )
+    
+    anturit_lista = []
+    
+    for anturi in lohko.anturit:
+        mittaukset = anturi.mittaus_tulos
+
+        if not mittaukset:
+            viimeisin_arvo = None
+            viimeisin_aikaleima = None
+        else:
+            viimeisin = max(mittaukset, key=lambda m: m.aikaleima)
+            viimeisin_arvo = viimeisin.mittaus_arvo
+            viimeisin_aikaleima = viimeisin.aikaleima
+
+        yksi_anturi = {
+            "id": anturi.id,
+            "tila": anturi.tila,
+            "viimeisin_arvo": viimeisin_arvo,
+            "viimeisin_aikaleima": viimeisin_aikaleima
+        }
+
+        anturit_lista.append(yksi_anturi)
 
     return {
-        "id": lohko.id,
-        "anturit": lohko.anturit
-    }
+    "id": lohko.id,
+    "anturit": anturit_lista
+}

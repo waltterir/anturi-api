@@ -12,8 +12,8 @@ class LohkoBase(SQLModel):
 
 class MittausBase(SQLModel):
     anturi_id: int
-    mittaus: int
-    ajankohta: datetime
+    mittaus_arvo: int
+    aikaleima: datetime
 
 
 class LohkoDB(LohkoBase, table=True):
