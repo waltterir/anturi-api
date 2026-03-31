@@ -49,18 +49,20 @@ def get_anturi_by_id(session: Session,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Limit must be atleast 1")
     if limit > 100:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Limit must be under 100")
-    if start_time is not None:
-        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta >= start_time)
-    if end_time is not None: 
-        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta <= end_time)    
     
-    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
-
     if start_time is not None and end_time is not None:
         if start_time > end_time:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Start time cannot be greater than end time")
         
-    mittaus_statement = mittaus_statement.order_by(desc(MittausDB.ajankohta))
+    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
+
+    if start_time is not None:
+        mittaus_statement = mittaus_statement.where(MittausDB.aikaleima >= start_time)
+    if end_time is not None: 
+        mittaus_statement = mittaus_statement.where(MittausDB.aikaleima <= end_time)    
+    
+    
+    mittaus_statement = mittaus_statement.order_by(desc(MittausDB.aikaleima))
     mittaus_statement = mittaus_statement.offset((page - 1) * limit)
     mittaus_statement = mittaus_statement.limit(limit)
     
