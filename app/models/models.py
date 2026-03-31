@@ -41,7 +41,10 @@ class AnturiMittausResponse(SQLModel):
     anturi: AnturiOut
     mittaukset: list[MittausOut]
 
-class AnturiTilamuutosResponse(SQLModel):
-    id: int
+class TilamuutosOut(SQLModel):
     tila: str
     aikaleima: datetime 
+
+class AnturiTilamuutosHistoriaOut(SQLModel):
+    anturi_id: int
+    tilamuutokset: list[TilamuutosOut]
