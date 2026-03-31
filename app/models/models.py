@@ -18,14 +18,14 @@ class MittausBase(SQLModel):
 
 class LohkoDB(LohkoBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    anturi: list["AnturiDB"] = Relationship(back_populates="lohko")
+    anturit: list["AnturiDB"] = Relationship(back_populates="lohko")
 
 
 
 class AnturiDB(AnturiBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     lohko_id: int = Field(foreign_key="lohkodb.id")
-    lohko: "LohkoDB" = Relationship(back_populates="anturi")
+    lohko: "LohkoDB" = Relationship(back_populates="anturit")
     mittaus_tulos: list["MittausDB"] = Relationship(back_populates="anturi")
 
 class MittausDB(MittausBase, table=True):

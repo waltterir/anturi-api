@@ -10,4 +10,3 @@ def create_lohko(session: Session, lohko_in: LohkoBase):
     session.commit()
     session.refresh(lohko)
     return lohko
-
