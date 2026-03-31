@@ -17,4 +17,11 @@ def create_mittaus(session: Session, mittaus_in: MittausBase):
     session.refresh(mittaus)
     return mittaus
 
-
+def delete_mittaus(session: Session, anturi_id: int):
+    mittaus = session.get(MittausDB, anturi_id)
+    if not mittaus:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi not found")
+    session.delete(mittaus)
+    session.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+   
