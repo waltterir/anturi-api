@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, Response
 from sqlmodel import Session, select, desc, func
-from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, LohkoBase
+from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, TilamuutosDB, AnturiTilamuutosHistoriaOut
 from datetime import datetime
 
 
@@ -74,15 +74,23 @@ def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
-    if anturi_update.tila:
-        anturi.tila = anturi_update.tila
+    if anturi_update.tila and anturi_update.tila != anturi.tila:
+        anturi.tila = anturi_update.tila 
+
+        tilamuutos = TilamuutosDB(
+            anturi_id=anturi_id,
+            tila=anturi_update.tila,
+            aikaleima=datetime.now()
+        )
+
+        session.add(tilamuutos)
+
     if anturi_update.lohko_id is not None:
         lohko = session.get(LohkoDB, anturi_update.lohko_id)
+        if not lohko:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lohko not found")
 
-    if not lohko:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lohko not found")
-
-    anturi.lohko_id = anturi_update.lohko_id
+        anturi.lohko_id = anturi_update.lohko_id
     
     
     session.add(anturi)
@@ -91,3 +99,17 @@ def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     return anturi
 
 
+def get_anturi_tilamuutos(session: Session, anturi_id: int):
+    anturi = session.get(AnturiDB, anturi_id)
+    if not anturi:
+         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    statement = select(TilamuutosDB).where(TilamuutosDB.anturi_id == anturi_id)
+    statement = statement.order_by(desc(TilamuutosDB.aikaleima))
+    
+    tilamuutokset = session.exec(statement).all()
+
+    
+    return AnturiTilamuutosHistoriaOut(
+        anturi_id=anturi_id,
+        tilamuutokset=tilamuutokset
+    )

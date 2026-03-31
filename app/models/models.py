@@ -28,6 +28,12 @@ class MittausDB(MittausBase, table=True):
     anturi_id: int = Field(foreign_key="anturidb.id")
     anturi: "AnturiDB" = Relationship(back_populates="mittaus_tulos")
 
+class TilamuutosDB(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    anturi_id: int = Field(foreign_key="anturidb.id")
+    tila: str
+    aikaleima: datetime
+
 class MittausOut(MittausBase):
     id: int
 

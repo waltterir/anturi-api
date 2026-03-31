@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from ..models.models import AnturiBase, AnturiOut, AnturiMittausResponse
+from ..models.models import AnturiBase, AnturiOut, AnturiMittausResponse, AnturiTilamuutosHistoriaOut
 from ..crud import anturit_crud as crud
 from sqlmodel import Session 
 from ..database.database import get_session
@@ -31,3 +31,9 @@ def get_anturi_by_id(*, session: Session = Depends(get_session),
 @router.put("/{anturi_id}", response_model=AnturiOut)
 def update_anturi(*, session: Session = Depends(get_session), anturi_id: int, anturi_update: AnturiBase):
     return crud.update_anturi(session, anturi_id, anturi_update)
+
+
+@router.get("/{anturi_id}/tilamuutokset", response_model=AnturiTilamuutosHistoriaOut)
+def get_anturi_tilamuutos(*, session: Session = Depends(get_session), anturi_id: int):
+    return crud.get_anturi_tilamuutos(session, anturi_id)
+    
