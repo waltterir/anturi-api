@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status, Response
 from sqlmodel import Session, select, desc, func
-from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, TilamuutosDB, AnturiTilamuutosHistoriaOut
+from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, TilamuutosDB, AnturiTilamuutosHistoriaOut, AnturiTila
 from datetime import datetime
 
 
 def get_anturit(session: Session, 
                 id: int | None = None,
                 lohko_id: int | None = None,
-                tila: str | None = None,
+                tila: AnturiTila | None = None,
                 ):
     statement = select(AnturiDB)
     if id is not None:
@@ -15,9 +15,7 @@ def get_anturit(session: Session,
     if lohko_id is not None:
         statement = statement.where(AnturiDB.lohko_id == lohko_id)
     if tila is not None:
-        statement = statement.where(
-        func.lower(AnturiDB.tila) == tila.lower()
-    )
+        statement = statement.where(AnturiDB.tila == tila)
 
     return session.exec(statement).all()
 
@@ -71,11 +69,15 @@ def get_anturi_by_id(session: Session,
     return {"anturi": anturi, "mittaukset": mittaus_statement}
 
 
-def get_anturi_tilamuutos(session: Session, anturi_id: int):
+def get_anturi_tilamuutos(session: Session, anturi_id: int, tila: AnturiTila | None = None):
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi:
          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    
     statement = select(TilamuutosDB).where(TilamuutosDB.anturi_id == anturi_id)
+    if tila is not None:
+        statement = statement.where(TilamuutosDB.tila == tila)
+        
     statement = statement.order_by(desc(TilamuutosDB.aikaleima))
     
     tilamuutokset = session.exec(statement).all()

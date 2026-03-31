@@ -1,9 +1,14 @@
 from datetime import datetime
 from sqlmodel import SQLModel, Relationship, Field
+from enum import Enum
+
+class AnturiTila(str, Enum):
+    NORMAL = "normal"
+    ERROR = "error"
 
 class AnturiBase(SQLModel):
     lohko_id: int
-    tila: str
+    tila: AnturiTila
 
 class LohkoBase(SQLModel):
     lohko_name: str
@@ -32,7 +37,7 @@ class MittausDB(MittausBase, table=True):
 class TilamuutosDB(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     anturi_id: int = Field(foreign_key="anturidb.id")
-    tila: str
+    tila: AnturiTila
     aikaleima: datetime
 
 class MittausOut(MittausBase):
@@ -49,7 +54,7 @@ class AnturiMittausResponse(SQLModel):
     mittaukset: list[MittausOut]
 
 class TilamuutosOut(SQLModel):
-    tila: str
+    tila: AnturiTila
     aikaleima: datetime 
 
 class AnturiTilamuutosHistoriaOut(SQLModel):
