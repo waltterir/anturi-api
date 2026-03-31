@@ -19,7 +19,7 @@ def get_anturit(*, session: Session = Depends(get_session),
 def create_anturi(*, session: Session = Depends(get_session), anturi_in: AnturiBase):
     return crud.create_anturi(session, anturi_in)
 
-@router.get("/{anturi_id}", response_model=AnturiMittausResponse)
+@router.get("/{anturi_id}/mittaus_tulokset", response_model=AnturiMittausResponse)
 def get_anturi_by_id(*, session: Session = Depends(get_session), 
                      anturi_id: int, 
                      start_time: datetime | None = None,

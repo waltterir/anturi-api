@@ -5,8 +5,6 @@ class AnturiBase(SQLModel):
     lohko_id: int
     tila: str
 
-
-
 class LohkoBase(SQLModel):
     lohko_name: str
 
@@ -15,12 +13,9 @@ class MittausBase(SQLModel):
     mittaus_arvo: int
     aikaleima: datetime
 
-
 class LohkoDB(LohkoBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     anturit: list["AnturiDB"] = Relationship(back_populates="lohko")
-
-
 
 class AnturiDB(AnturiBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -33,14 +28,11 @@ class MittausDB(MittausBase, table=True):
     anturi_id: int = Field(foreign_key="anturidb.id")
     anturi: "AnturiDB" = Relationship(back_populates="mittaus_tulos")
 
-
 class MittausOut(MittausBase):
     id: int
 
-
 class AnturiOut(AnturiBase):
     id: int
-
 
 class LohkoOut(LohkoBase):
     id: int
@@ -48,3 +40,8 @@ class LohkoOut(LohkoBase):
 class AnturiMittausResponse(SQLModel):
     anturi: AnturiOut
     mittaukset: list[MittausOut]
+
+class AnturiTilamuutosResponse(SQLModel):
+    id: int
+    tila: str
+    aikaleima: datetime 
