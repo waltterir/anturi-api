@@ -70,6 +70,22 @@ def get_anturi_by_id(session: Session,
 
     return {"anturi": anturi, "mittaukset": mittaus_statement}
 
+
+def get_anturi_tilamuutos(session: Session, anturi_id: int):
+    anturi = session.get(AnturiDB, anturi_id)
+    if not anturi:
+         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    statement = select(TilamuutosDB).where(TilamuutosDB.anturi_id == anturi_id)
+    statement = statement.order_by(desc(TilamuutosDB.aikaleima))
+    
+    tilamuutokset = session.exec(statement).all()
+
+    
+    return AnturiTilamuutosHistoriaOut(
+        anturi_id=anturi_id,
+        tilamuutokset=tilamuutokset
+    )
+
 def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi: 
@@ -97,19 +113,3 @@ def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     session.commit()
     session.refresh(anturi)
     return anturi
-
-
-def get_anturi_tilamuutos(session: Session, anturi_id: int):
-    anturi = session.get(AnturiDB, anturi_id)
-    if not anturi:
-         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
-    statement = select(TilamuutosDB).where(TilamuutosDB.anturi_id == anturi_id)
-    statement = statement.order_by(desc(TilamuutosDB.aikaleima))
-    
-    tilamuutokset = session.exec(statement).all()
-
-    
-    return AnturiTilamuutosHistoriaOut(
-        anturi_id=anturi_id,
-        tilamuutokset=tilamuutokset
-    )
