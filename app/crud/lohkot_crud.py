@@ -43,6 +43,7 @@ def get_lohko_anturit(session: Session, lohko_id: int):
         anturit_lista.append(yksi_anturi)
 
     return {
+    "name": lohko.lohko_name,
     "id": lohko.id,
     "anturit": anturit_lista
 }

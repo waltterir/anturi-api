@@ -12,5 +12,5 @@ def create_mittaus(*, session: Session = Depends(get_session), mittaus_in: Mitta
     return crud.create_mittaus(session, mittaus_in)
 
 @router.delete("/{anturi_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_mittaus(*, session: Session = Depends(get_session), anturi_id: int):
-    return crud.delete_mittaus(session, anturi_id)
+def delete_mittaus(*, session: Session = Depends(get_session), mittaus_id: int):
+    return crud.delete_mittaus(session, mittaus_id)
