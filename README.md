@@ -9,10 +9,26 @@ Ydinominaisuudet toteutettu
 
 ## Ydinominaisuudet
 
-- Toteutettu täydet CRUD operaatiot antureille, lohkoille ja mittauksille.
-- Relaationaaliset data mallinnukset (Lohko → Anturi → Mittaus)
-- Endpointit hakemaan lohkon anturit ja antureiden mittaukset
-- Offset-pohjainen paginointi (sivu ja limit)
+- Toteutettu täydet CRUD-operaatiot antureille, lohkoille ja mittauksille
+- Relaationaaliset datamallit (Lohko → Anturi → Mittaus)
+
+- Anturien hallinta:
+  - Anturien haku ja luonti
+  - Yksittäisen anturin mittaustulosten haku
+  - Anturin tilamuutosten seuranta
+
+- Lohkojen hallinta:
+  - Lohkojen luonti
+  - Lohkoon kuuluvien anturien haku
+
+- Mittausten hallinta:
+  - Uusien mittausten luonti antureille
+  - Mittausten poistaminen
+  - Mittausten haku anturin perusteella
+  - Aikavälisuodatus mittauksille (start_time, end_time)
+
+- Offset-pohjainen paginointi (page & limit)
+
 - Suodatus:
   - anturit tilan ja mitta-arvojen perusteella
   - lohkot lohko_id:n perusteella
