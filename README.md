@@ -63,7 +63,7 @@ fastapi dev app/main.py (FastAPI CLI)
 
 http://localhost:8000/docs
 
-## 📁 Projekti rakenne
+## 📁 Projektin rakenne
 
 ```text
 app/
@@ -73,6 +73,29 @@ app/
 ├── crud/          # Tietokanta operaatiot
 ├── database/      # DB-alustus
 ```
+
+## Esimerkkikutsu
+
+- GET /anturit/{anturi_id}/mittaus_tulokset?page=1&limit=10
+
+## Esimerkkivastaus
+
+- {
+  "anturi": {
+  "anturi_name": "Anturi A",
+  "lohko_id": 1,
+  "tila": "error",
+  "id": 1
+  },
+  "mittaukset": [
+  {
+  "anturi_id": 1,
+  "mittaus_arvo": 20.5,
+  "aikaleima": "2026-04-02T10:31:26.623000",
+  "id": 1
+  }
+  ]
+  }
 
 ## Tech Stack
 
