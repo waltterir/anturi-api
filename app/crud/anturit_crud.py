@@ -1,13 +1,13 @@
 from fastapi import HTTPException, status, Response
 from sqlmodel import Session, select, desc, func
-from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, LohkoBase
+from ..models.models import AnturiDB, AnturiBase, LohkoDB, MittausDB, TilamuutosDB, AnturiTilamuutosHistoriaOut, AnturiTila
 from datetime import datetime
 
 
 def get_anturit(session: Session, 
                 id: int | None = None,
                 lohko_id: int | None = None,
-                tila: str | None = None,
+                tila: AnturiTila | None = None,
                 ):
     statement = select(AnturiDB)
     if id is not None:
@@ -15,9 +15,7 @@ def get_anturit(session: Session,
     if lohko_id is not None:
         statement = statement.where(AnturiDB.lohko_id == lohko_id)
     if tila is not None:
-        statement = statement.where(
-        func.lower(AnturiDB.tila) == tila.lower()
-    )
+        statement = statement.where(AnturiDB.tila == tila)
 
     return session.exec(statement).all()
 
@@ -49,18 +47,20 @@ def get_anturi_by_id(session: Session,
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Limit must be atleast 1")
     if limit > 100:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Limit must be under 100")
-    if start_time is not None:
-        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta >= start_time)
-    if end_time is not None: 
-        mittaus_statement = mittaus_statement.where(MittausDB.ajankohta <= end_time)    
     
-    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
-
     if start_time is not None and end_time is not None:
         if start_time > end_time:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Start time cannot be greater than end time")
         
-    mittaus_statement = mittaus_statement.order_by(desc(MittausDB.ajankohta))
+    mittaus_statement = select(MittausDB).where(MittausDB.anturi_id == anturi_id)
+
+    if start_time is not None:
+        mittaus_statement = mittaus_statement.where(MittausDB.aikaleima >= start_time)
+    if end_time is not None: 
+        mittaus_statement = mittaus_statement.where(MittausDB.aikaleima <= end_time)    
+    
+    
+    mittaus_statement = mittaus_statement.order_by(desc(MittausDB.aikaleima))
     mittaus_statement = mittaus_statement.offset((page - 1) * limit)
     mittaus_statement = mittaus_statement.limit(limit)
     
@@ -68,24 +68,50 @@ def get_anturi_by_id(session: Session,
 
     return {"anturi": anturi, "mittaukset": mittaus_statement}
 
+
+def get_anturi_tilamuutos(session: Session, anturi_id: int, tila: AnturiTila | None = None):
+    anturi = session.get(AnturiDB, anturi_id)
+    if not anturi:
+         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
+    
+    statement = select(TilamuutosDB).where(TilamuutosDB.anturi_id == anturi_id)
+    if tila is not None:
+        statement = statement.where(TilamuutosDB.tila == tila)
+        
+    statement = statement.order_by(desc(TilamuutosDB.aikaleima))
+    
+    tilamuutokset = session.exec(statement).all()
+
+    
+    return AnturiTilamuutosHistoriaOut(
+        anturi_id=anturi_id,
+        tilamuutokset=tilamuutokset
+    )
+
 def update_anturi(session: Session, anturi_id: int, anturi_update: AnturiBase):
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
-    if anturi_update.tila:
-        anturi.tila = anturi_update.tila
+    if anturi_update.tila and anturi_update.tila != anturi.tila:
+        anturi.tila = anturi_update.tila 
+
+        tilamuutos = TilamuutosDB(
+            anturi_id=anturi_id,
+            tila=anturi_update.tila,
+            aikaleima=datetime.now()
+        )
+
+        session.add(tilamuutos)
+
     if anturi_update.lohko_id is not None:
         lohko = session.get(LohkoDB, anturi_update.lohko_id)
+        if not lohko:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lohko not found")
 
-    if not lohko:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lohko not found")
-
-    anturi.lohko_id = anturi_update.lohko_id
+        anturi.lohko_id = anturi_update.lohko_id
     
     
     session.add(anturi)
     session.commit()
     session.refresh(anturi)
     return anturi
-
-
