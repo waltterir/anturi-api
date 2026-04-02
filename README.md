@@ -38,7 +38,6 @@ Ydinominaisuudet toteutettu
 - Modulaarinen projektirakenne (crud, database, models, routes)
 - SQLite-integraatio SQLModelin kautta
 - Perusvirheenkäsittely HTTPExceptioneilla
-- Toteutettu riippuvuuksiin perustuva autentikointi (FastAPI Depends)
 - Selkeä vastuunjako autentikoinnin, reitityksen ja tietokantakerroksen välillä
 
 ## Käyttöönotto ja ajaminen lokaalisti
