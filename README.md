@@ -76,7 +76,7 @@ Selkeä vastuunjako reitityksen ja tietokantakerroksen välillä
    - git clone https://github.com/waltterir/anturi-api.git
    - cd anturi-api
 
-2. #### Luo ja aktivoi virtuaaliympäristö (suositeltu)
+2. #### Luo ja aktivoi virtuaaliympäristö
    - python -m venv .venv
 
    Aktivoi ympäristö:
