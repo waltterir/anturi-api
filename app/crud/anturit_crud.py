@@ -36,7 +36,8 @@ def get_anturi_by_id(session: Session,
     anturi = session.get(AnturiDB, anturi_id)
     if not anturi:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Anturi with {anturi_id} not found")
-    
+    if anturi.tila == AnturiTila.ERROR:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail=f"Anturi with id {anturi_id} is in error state and does not provide temperature data")
     if page < 1:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Page must be atleast 1")
     if limit < 1:
