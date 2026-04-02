@@ -76,22 +76,26 @@ Selkeä vastuunjako reitityksen ja tietokantakerroksen välillä
    - git clone https://github.com/waltterir/anturi-api.git
    - cd anturi-api
 
-2. #### Asenna riippuvuudet
+2. #### Luo ja aktivoi virtuaaliympäristö (suositeltu)
+   - python -m venv .venv
+
+   Aktivoi ympäristö:
+
+   Windows:
+   - .venv\Scripts\activate
+
+3. #### Asenna riippuvuudet
    - pip install -r requirements.txt
 
-3. #### Käynnistä sovellus
+4. #### Käynnistä sovellus
 
-```md
-uvicorn app.main:app --reload (Suositeltu)
+```bash
+uvicorn app.main:app --reload  # Suositeltu
 
-TAI
+# TAI
 
-fastapi dev app/main.py (FastAPI CLI)
+fastapi dev app/main.py        # FastAPI CLI
 ```
-
-4. #### Avaa API-dokumentaatio
-
-http://localhost:8000/docs
 
 ## 📁 Projektin rakenne
 
