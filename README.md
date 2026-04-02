@@ -80,22 +80,24 @@ app/
 
 ## Esimerkkivastaus
 
-- {
-  "anturi": {
-  "anturi_name": "Anturi A",
-  "lohko_id": 1,
-  "tila": "error",
-  "id": 1
-  },
-  "mittaukset": [
-  {
-  "anturi_id": 1,
-  "mittaus_arvo": 20.5,
-  "aikaleima": "2026-04-02T10:31:26.623000",
-  "id": 1
-  }
-  ]
-  }
+```md
+{
+"anturi": {
+"anturi_name": "Anturi 32",
+"lohko_id": 1,
+"tila": "error",
+"id": 1
+},
+"mittaukset": [
+{
+"anturi_id": 1,
+"mittaus_arvo": 20.5,
+"aikaleima": "2026-04-02T10:31:26.623000",
+"id": 1
+}
+]
+}
+```
 
 ## Tech Stack
 
