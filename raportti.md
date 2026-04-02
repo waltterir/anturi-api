@@ -32,4 +32,4 @@ Tämä projekti vahvisti myös osaamistani monilla osa-alueilla. Taulujen luonti
 
 Hyödynsin keinoälyä projektin aikana tukena oppimisessa ja ongelmanratkaisussa. Käytin sitä erityisesti käsitteiden selittämiseen, koodin toiminnan ymmärtämiseen sekä omien ratkaisujeni varmistamiseen.
 
-Käytin keinoälyä myös tekstin selkeyttämiseen README- ja raporttiosioissa, mutta kaikki varsinainen toteutus, suunnittelu ja koodi on tehty itsenäisesti.
+Kaikki varsinainen toteutus, suunnittelu ja koodi on tehty itsenäisesti.
