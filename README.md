@@ -25,7 +25,29 @@ Ydinominaisuudet toteutettu
 - Toteutettu riippuvuuksiin perustuva autentikointi (FastAPI Depends)
 - Selkeä vastuunjako autentikoinnin, reitityksen ja tietokantakerroksen välillä
 
-## 📁 Project Structure
+## Käyttöönotto ja ajaminen lokaalisti
+
+1. Kopioi repositorio
+   git clone ... cd ...
+
+2. Asenna riippuvuudet
+   pip install -r requirements.txt
+
+3. Käynnistä sovellus
+
+```md
+uvicorn app.main:app --reload (Suositeltu)
+
+TAI
+
+fastapi dev app/main.py (FastAPI CLI)
+```
+
+4. Avaa API-dokumentaatio
+
+http://localhost:8000/docs
+
+## 📁 Projekti rakenne
 
 ```text
 app/
@@ -36,23 +58,9 @@ app/
 ├── database/      # DB-alustus
 ```
 
-# Esimerkki endpoint
-
-- GET /anturit/{anturi_id}/mittaus_tulokset?page=1&limit=10&start_time=2024-01-01T00:00:00&end_time=2024-01-02T00:00:00
-
 ## Tech Stack
 
 - Python
 - FastAPI
 - SQLModel
 - SQLite
-
-## Ohjelman ajo lokaalisti
-
-```md
-Option 1 (Suositeltu)
-uvicorn app.main:app --reload
-
-Option 2 (FastAPI CLI)
-fastapi dev app/main.py
-```
