@@ -43,7 +43,7 @@ Ydinominaisuudet toteutettu
 ## Käyttöönotto ja ajaminen lokaalisti
 
 1. #### Kopioi repositorio
-   - git clone https://github.com/walterri/anturi-api.git
+   - git clone https://github.com/waltterir/anturi-api.git
    - cd anturi-api
 
 2. #### Asenna riippuvuudet
