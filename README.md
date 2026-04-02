@@ -44,7 +44,8 @@ Ydinominaisuudet toteutettu
 ## Käyttöönotto ja ajaminen lokaalisti
 
 1. #### Kopioi repositorio
-   - git clone ... cd ...
+   - git clone https://github.com/walterri/anturi-api.git
+   - cd anturi-api
 
 2. #### Asenna riippuvuudet
    - pip install -r requirements.txt
@@ -59,7 +60,7 @@ TAI
 fastapi dev app/main.py (FastAPI CLI)
 ```
 
-4. Avaa API-dokumentaatio
+4. #### Avaa API-dokumentaatio
 
 http://localhost:8000/docs
 
