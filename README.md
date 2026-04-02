@@ -43,13 +43,13 @@ Ydinominaisuudet toteutettu
 
 ## Käyttöönotto ja ajaminen lokaalisti
 
-1. Kopioi repositorio
-   git clone ... cd ...
+1. #### Kopioi repositorio
+   - git clone ... cd ...
 
-2. Asenna riippuvuudet
-   pip install -r requirements.txt
+2. #### Asenna riippuvuudet
+   - pip install -r requirements.txt
 
-3. Käynnistä sovellus
+3. #### Käynnistä sovellus
 
 ```md
 uvicorn app.main:app --reload (Suositeltu)
