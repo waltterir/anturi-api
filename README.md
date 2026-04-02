@@ -32,13 +32,43 @@ Ydinominaisuudet toteutettu
 - Suodatus:
   - anturit tilan ja mitta-arvojen perusteella
   - lohkot lohko_id:n perusteella
+ 
+## Vaatimusten täyttyminen
 
-## Backend ja Arkkitehtuuri
+Projektissa on toteutettu kaikki annetut backend-vaatimukset:
 
-- Modulaarinen projektirakenne (crud, database, models, routes)
-- SQLite-integraatio SQLModelin kautta
-- Perusvirheenkäsittely HTTPExceptioneilla
-- Selkeä vastuunjako autentikoinnin, reitityksen ja tietokantakerroksen välillä
+Hallinta:
+- Antureiden lisääminen järjestelmään
+- Anturin tilan muuttaminen
+- Anturin lohkon muuttaminen
+- Yksittäisen mittatuloksen poistaminen
+
+Datan haku:
+- Kaikkien antureiden listaus (tunniste, lohko ja tila)
+- Lohkokohtainen anturien listaus (sisältäen viimeisimmän mittauksen)
+- Yksittäisen anturin kaikki tiedot (sisältäen mittaukset)
+- Mittausten rajaaminen aikavälille (start_time, end_time)
+- Oletuksena rajattu määrä tuloksia (paginointi)
+
+Lisäksi:
+- Anturien suodatus tilan mukaan
+- Anturin tilamuutosten seuranta
+
+Backend ja Arkkitehtuuri
+
+Modulaarinen projektirakenne (crud, database, models, routes)
+SQLite-integraatio SQLModelin kautta
+
+API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
+- GET: datan haku
+- POST: uusien resurssien luonti
+- DELETE: resurssien poistaminen
+
+Virhetilanteita käsitellään HTTPExceptioneilla. API palauttaa selkeät HTTP-statuskoodit, kuten:
+- 404 jos resurssia ei löydy
+- 400 virheelliselle syötteelle
+
+Selkeä vastuunjako reitityksen ja tietokantakerroksen välillä
 
 ## Käyttöönotto ja ajaminen lokaalisti
 
