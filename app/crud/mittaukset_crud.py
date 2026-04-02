@@ -3,10 +3,6 @@ from sqlmodel import Session, select
 from ..models.models import MittausBase, MittausDB, AnturiDB
 
 
-
-
-
-
 def create_mittaus(session: Session, mittaus_in: MittausBase):
     anturi = session.get(AnturiDB, mittaus_in.anturi_id)
     if not anturi: 
