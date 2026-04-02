@@ -97,6 +97,9 @@ uvicorn app.main:app --reload  # Suositeltu
 fastapi dev app/main.py        # FastAPI CLI
 ```
 
+#### Avaa API-dokumentaatio
+http://localhost:8000/docs
+
 ## 📁 Projektin rakenne
 
 ```text
