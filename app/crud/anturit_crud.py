@@ -6,14 +6,10 @@ from datetime import datetime
 
 def get_anturit(session: Session, 
                 id: int | None = None,
-                lohko_id: int | None = None,
-                tila: AnturiTila | None = None,
-                ):
+                tila: AnturiTila | None = None):
     statement = select(AnturiDB)
     if id is not None:
         statement = statement.where(AnturiDB.id == id)
-    if lohko_id is not None:
-        statement = statement.where(AnturiDB.lohko_id == lohko_id)
     if tila is not None:
         statement = statement.where(AnturiDB.tila == tila)
 

@@ -7,6 +7,7 @@ class AnturiTila(str, Enum):
     ERROR = "error"
 
 class AnturiBase(SQLModel):
+    anturi_name: str | None = None
     lohko_id: int
     tila: AnturiTila
 

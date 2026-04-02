@@ -11,9 +11,8 @@ router = APIRouter(prefix="/anturit", tags=["Anturit"])
 @router.get("/", response_model=list[AnturiOut])
 def get_anturit(*, session: Session = Depends(get_session), 
                 id: int | None = None, 
-                lohko_id: int | None = None, 
                 tila: AnturiTila| None = None):
-    return crud.get_anturit(session, id, lohko_id, tila)
+    return crud.get_anturit(session, id, tila)
 
 @router.post("/", status_code=201, response_model=AnturiOut)
 def create_anturi(*, session: Session = Depends(get_session), anturi_in: AnturiBase):
