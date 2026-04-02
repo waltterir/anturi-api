@@ -20,9 +20,7 @@ Opin paljon uutta ja hyödyllisiä asioita. Enum oli yksi uusi asia, johon törm
 
 Yksi suurimmista asioista, mitä opin projektia tehdessä, oli miten voin tehdä tietokantakyselyitä funktion sisällä määrittelemieni mallien perusteella, esim. (AnturiMittausResponse), jolloin pystyin palauttamaan samassa vastauksessa useamman kyselyn tulokset.
 
-Samaan ideaan liittyen opin myös yhdistämään useista tietokantatauluista haettua dataa ja muodostamaan niistä listamuotoisia vastauksia funktion sisällä.
-
-Opin muodostamaan listamuotoisia vastauksia funktioissa ja palauttamaan ne osana API responsea.
+Samaan ideaan liittyen opin myös yhdistämään useista tietokantatauluista haettua dataa ja muodostamaan listamuotoisia vastauksia funktioissa ja palauttamaan ne osana API responsea.
 
 Opin hakemaan yksittäisen mittauksen ja sen viimeisimmän arvon käyttämällä max-funktiota ja lambdaa.
 
