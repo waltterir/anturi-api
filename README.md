@@ -54,7 +54,7 @@ Lisäksi:
 - Anturien suodatus tilan mukaan
 - Anturin tilamuutosten seuranta
 
-Backend ja Arkkitehtuuri
+## Backend ja Arkkitehtuuri
 
 Modulaarinen projektirakenne (crud, database, models, routes)
 SQLite-integraatio SQLModelin kautta
