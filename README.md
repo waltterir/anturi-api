@@ -62,12 +62,15 @@ Projektissa on toteutettu kaikki annetut backend-vaatimukset:
 Modulaarinen projektirakenne (crud, database, models, routes)
 SQLite-integraatio SQLModelin kautta
 
-API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
-- GET: datan haku
-- POST: uusien resurssien luonti
-- DELETE: resurssien poistaminen
+#### API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
 
-Virhetilanteita käsitellään HTTPExceptioneilla. API palauttaa selkeät HTTP-statuskoodit, kuten:
+* GET: datan haku
+* POST: uusien resurssien luonti
+* PUT: olemassa olevien resurssien päivittäminen
+* DELETE: resurssien poistaminen
+
+
+#### Virhetilanteita käsitellään HTTPExceptioneilla. API palauttaa selkeät HTTP-statuskoodit, kuten:
 - 404 jos resurssia ei löydy
 - 400 virheelliselle syötteelle
 
