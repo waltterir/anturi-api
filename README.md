@@ -9,7 +9,6 @@ Ydinominaisuudet toteutettu
 
 ## Ydinominaisuudet
 
-- Toteutettu täydet CRUD-operaatiot antureille, lohkoille ja mittauksille
 - Relaationaaliset datamallit (Lohko → Anturi → Mittaus)
 
 - Anturien hallinta:
