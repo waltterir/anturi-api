@@ -36,22 +36,26 @@ Ydinominaisuudet toteutettu
 
 Projektissa on toteutettu kaikki annetut backend-vaatimukset:
 
-Hallinta:
+#### Hallinta:
+
 - Antureiden lisääminen järjestelmään
 - Anturin tilan muuttaminen
 - Anturin lohkon muuttaminen
 - Yksittäisen mittatuloksen poistaminen
 
-Datan haku:
+#### Datan haku:
+
 - Kaikkien antureiden listaus (tunniste, lohko ja tila)
 - Lohkokohtainen anturien listaus (sisältäen viimeisimmän mittauksen)
 - Yksittäisen anturin kaikki tiedot (sisältäen mittaukset)
 - Mittausten rajaaminen aikavälille (start_time, end_time)
 - Oletuksena rajattu määrä tuloksia (paginointi)
 
-Lisäksi:
+#### Lisäksi:
+
 - Anturien suodatus tilan mukaan
 - Anturin tilamuutosten seuranta
+- Virhetilassa olevan anturin mittaustuloksia ei palauteta
 
 ## Backend ja Arkkitehtuuri
 
