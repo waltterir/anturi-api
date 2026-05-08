@@ -1,7 +1,6 @@
 # Anturi API
 
-REST API lämpötila-anturidatan keräämiseen.
-Toteutettu kurssin päättötyönä.
+REST API lämpötila-anturidatan keräämiseen ja hallintaan. Toteutettu kurssin päättötyönä.
 
 ## Status
 
