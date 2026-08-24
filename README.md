@@ -32,7 +32,18 @@ Ydinominaisuudet toteutettu
   - lohkot lohko_id:n perusteella
 
 ## Testit
-- Testaus toteutettu antureille, lohkoille ja mittauksille
+Tämä projekti sisältää automaattiset testit kirjoitettuna pytestillä.
+
+Testeihin kuuluu:
+
+CRUD operaatiot antureille, lohkoille ja mittauksille.
+Sivutus and query parametrien validointi
+Virhe käsittely validointi (404, 400, 422)
+Business logic validation (e.g. preventing deletion of authors with existing books)
+
+Aja testit lokaalisti:
+
+python -m pytest -v
  
 ## Vaatimusten täyttyminen
 
