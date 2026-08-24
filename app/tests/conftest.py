@@ -2,6 +2,7 @@ import os
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import SQLModel, Session, create_engine
+from app.models.models import LohkoDB, AnturiDB, AnturiTila
 
 from app.main import app
 from app.database.database import get_session
@@ -33,3 +34,20 @@ def client_fixture(session):
         yield client
 
     app.dependency_overrides.clear()
+
+@pytest.fixture
+def lohko(session):
+    lohko = LohkoDB(lohko_name="Testilohko")
+    session.add(lohko)
+    session.commit()
+    session.refresh(lohko)
+    return lohko
+
+
+@pytest.fixture
+def anturi(session, lohko):
+    anturi = AnturiDB(anturi_name="Testianturi", lohko_id=lohko.id, tila=AnturiTila.NORMAL)
+    session.add(anturi)
+    session.commit()
+    session.refresh(anturi)
+    return anturi
