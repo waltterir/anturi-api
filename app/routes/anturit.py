@@ -28,8 +28,8 @@ def get_anturi_by_id(*, session: Session = Depends(get_session),
     return crud.get_anturi_by_id(session, anturi_id, start_time, end_time, page, limit)
 
 @router.get("/{anturi_id}/tilamuutokset", response_model=AnturiTilamuutosHistoriaOut)
-def get_anturi_tilamuutos(*, session: Session = Depends(get_session), anturi_id: int, tila: AnturiTila):
-    return crud.get_anturi_tilamuutos(session, anturi_id)
+def get_anturi_tilamuutos(*, session: Session = Depends(get_session), anturi_id: int, tila: AnturiTila | None = None):
+    return crud.get_anturi_tilamuutos(session, anturi_id, tila)
     
 
 @router.put("/{anturi_id}", response_model=AnturiOut)
