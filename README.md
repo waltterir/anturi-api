@@ -30,6 +30,9 @@ Ydinominaisuudet toteutettu
 - Suodatus:
   - anturit tilan ja mitta-arvojen perusteella
   - lohkot lohko_id:n perusteella
+
+## Testit
+- Testaus toteutettu antureille, lohkoille ja mittauksille
  
 ## Vaatimusten täyttyminen
 
