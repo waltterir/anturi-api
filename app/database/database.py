@@ -1,9 +1,12 @@
+import os
 from sqlmodel import Session, create_engine, SQLModel
 
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///database.db")
 
-connect_args = {'check_same_thread': False}
-engine = create_engine("sqlite:///database.db", echo=True, 
-                       connect_args=connect_args)
+# connect_args tarvitaan vain SQLitelle
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+
+engine = create_engine(DATABASE_URL, echo=True, connect_args=connect_args)
 
 
 def create_db_and_tables():
@@ -11,5 +14,5 @@ def create_db_and_tables():
 
 
 def get_session():
-    with Session(engine) as session: 
+    with Session(engine) as session:
         yield session
