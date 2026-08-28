@@ -32,13 +32,39 @@ Ydinominaisuudet toteutettu
   - lohkot lohko_id:n perusteella
 
 ## Testit
-Tämä projekti sisältää automaattiset testit kirjoitettuna pytestillä.
+Tämä projekti sisältää kattavan automaattisen testikannan, toteutettu pytestillä ja FastAPI:n TestClientillä.
 
-Testeihin kuuluu mm. 
+Testien kattavuus
 
-CRUD operaatiot antureille, lohkoille ja mittauksille.
-Sivutus and query parametrien validointi
-Virhe käsittelyn validointi (404, 400, 422)
+#### Anturit
+
+- Anturin luonti (onnistunut ja virhetilanne: viittaus olemattomaan lohkoon)
+- Anturien haku ja suodatus (id:llä, tilalla)
+- Anturin päivitys, mukaan lukien tilamuutosten automaattinen kirjautuminen
+  - Tilan muuttuessa luodaan tilamuutosmerkintä
+  - Saman tilan asettaminen uudelleen ei luo turhaa merkintää
+- Anturin tilamuutoshistorian haku ja suodatus tilan mukaan
+
+#### Mittaukset
+
+- Mittaustulosten haku anturikohtaisesti, mukaan lukien:
+  - Aikajärjestys (uusin ensin)
+  - Aikavälisuodatus (start_time/end_time) ja virheellisen aikavälin validointi
+  - Paginointi (page & limit) ja rajojen validointi (page < 1, limit < 1, limit > 100)
+  - Virhetilassa olevan anturin mittauksia ei palauteta (409)
+- Mittauksen poisto (onnistunut poisto ja 404 olemattomalle mittaukselle)
+
+#### Lohkot
+
+- Lohkon luonti
+- Lohkoon kuuluvien anturien haku, mukaan lukien:
+  - Tyhjä lista kun lohkolla ei ole antureita
+  - Anturi ilman mittauksia (viimeisin_arvo/aikaleima = null)
+  - Viimeisimmän mittauksen näyttäminen useamman mittauksen joukosta
+  - Useamman anturin listaus samasta lohkosta
+  - 404 olemattomalle lohkolle
+
+
 
 Aja testit lokaalisti:
 
@@ -73,8 +99,8 @@ Projektissa on toteutettu kaikki annetut backend-vaatimukset:
 
 ## Backend ja Arkkitehtuuri
 
-Modulaarinen projektirakenne (crud, database, models, routes)
-SQLite-integraatio SQLModelin kautta
+Modulaarinen projektirakenne (crud, database, models, routes) PostgreSQL-integraatio SQLModelin kautta, ajetaan Dockerissa (kehityksessä myös SQLite-tuki DATABASE_URL-ympäristömuuttujan kautta)
+
 
 #### API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
 
@@ -120,6 +146,29 @@ fastapi dev app/main.py        # FastAPI CLI
 #### Avaa API-dokumentaatio
 http://localhost:8000/docs
 
+## Ajaminen Dockerilla (PostgreSQL)
+
+Projekti tukee myös konttipohjaista ajoa Docker Composella, jolloin sovellus käyttää SQLiten sijaan PostgreSQL-tietokantaa
+
+#### Käynnistä kontit
+
+````bash
+docker compose up -d --build
+````
+Tämä käynnistää kaksi konttia:
+  - anturi-api - FastAPI-sovellus portissa 8000
+  - anturi_db - PostgreSQL 16-tietokanta
+
+#### Tarkista tila
+
+````bash
+docker compose ps
+docker compose logs api
+````
+
+#### Avaa API-dokumentaatio
+http://localhost:8000/docs
+
 ## 📁 Projektin rakenne
 
 ```text
@@ -129,6 +178,7 @@ app/
 ├── models/        # Tietokantamallit
 ├── crud/          # Tietokanta operaatiot
 ├── database/      # DB-alustus
+├── tests/         # Testit
 ```
 
 ## Esimerkkikutsu
@@ -161,5 +211,7 @@ app/
 - Python
 - FastAPI
 - SQLModel
-- SQLite
+- PostgreSQL(tuotanto/Docker)
+- SQLite(kehitys, oletusarvo ilman DATABASE_URL)
 - Pytest
+- Docker
