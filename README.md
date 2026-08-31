@@ -177,7 +177,7 @@ Sovellus on deployattu AWS:ään: ECR (image) → ECS/Fargate (kontti) → RDS P
 ````bash
 http://anturi-api-alb-1717429430.eu-north-1.elb.amazonaws.com/docs
 ````
-#### Build & Push
+#### Rakenna & Julkaise 
 ````bash
    docker build -t anturi-api .
    docker tag anturi-api:latest <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
