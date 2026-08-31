@@ -169,6 +169,21 @@ docker compose logs api
 #### Avaa API-dokumentaatio
 http://localhost:8000/docs
 
+## Ajaminen AWS-Pilvessä
+
+Sovellus on deployattu AWS:ään: ECR (image) → ECS/Fargate (kontti) → RDS PostgreSQL (tietokanta) → ALB (julkinen endpoint).
+
+#### Live-endpoint
+````bash
+http://anturi-api-alb-1717429430.eu-north-1.elb.amazonaws.com/docs
+````
+#### Build & Push
+````bash
+   docker build -t anturi-api .
+   docker tag anturi-api:latest <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
+   docker push <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
+````
+
 ## 📁 Projektin rakenne
 
 ```text
@@ -215,3 +230,4 @@ app/
 - SQLite(kehitys, oletusarvo ilman DATABASE_URL)
 - Pytest
 - Docker
+- AWS
