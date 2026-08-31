@@ -226,8 +226,8 @@ app/
 - Python
 - FastAPI
 - SQLModel
-- PostgreSQL(tuotanto/Docker)
-- SQLite(kehitys, oletusarvo ilman DATABASE_URL)
+- PostgreSQL(tuotanto)
+- SQLite(Paikallinen kehitys)
 - Pytest
 - Docker
-- AWS
+- AWS(ECS/Fargate, RDS, ALB)
