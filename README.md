@@ -3,10 +3,6 @@
 REST API lämpötila-anturidatan keräämiseen ja hallintaan.
 FastAPI-backend toteutettu alun perin kurssin päättötyönä; AWS-tuotantoympäristö, automaattitestit ja MuleSoft-integraatio rakennettu ja lisätty itsenäisesti kurssin jälkeen.
 
-## Status
-
-Ydinominaisuudet toteutettu
-
 ## Ydinominaisuudet
 
 - Relaationaaliset datamallit (Lohko → Anturi → Mittaus)
