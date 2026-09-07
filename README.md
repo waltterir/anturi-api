@@ -1,6 +1,7 @@
 # Anturi API
 
-REST API lämpötila-anturidatan keräämiseen ja hallintaan. Toteutettu kurssin päättötyönä.
+REST API lämpötila-anturidatan keräämiseen ja hallintaan.
+FastAPI-backend toteutettu alun perin kurssin päättötyönä; AWS-tuotantoympäristö, automaattitestit ja MuleSoft-integraatio rakennettu ja lisätty itsenäisesti kurssin jälkeen.
 
 ## Status
 
