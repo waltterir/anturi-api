@@ -230,7 +230,7 @@ app/
 
 Anturi monitorointi
 
-Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi_APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
+Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi-APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
 
 ### Toiminta
 
