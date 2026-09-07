@@ -32,6 +32,7 @@ Ydinominaisuudet toteutettu
   - lohkot lohko_id:n perusteella
 
 ## Testit
+
 Tämä projekti sisältää kattavan automaattisen testikannan, toteutettu pytestillä ja FastAPI:n TestClientillä.
 
 Testien kattavuus
@@ -64,14 +65,12 @@ Testien kattavuus
   - Useamman anturin listaus samasta lohkosta
   - 404 olemattomalle lohkolle
 
-
-
 Aja testit lokaalisti:
 
 ```bash
 python -m pytest -v
 ```
- 
+
 ## Vaatimusten täyttyminen
 
 Projektissa on toteutettu kaikki annetut backend-vaatimukset:
@@ -101,16 +100,15 @@ Projektissa on toteutettu kaikki annetut backend-vaatimukset:
 
 Modulaarinen projektirakenne (crud, database, models, routes) PostgreSQL-integraatio SQLModelin kautta, ajetaan Dockerissa (kehityksessä myös SQLite-tuki DATABASE_URL-ympäristömuuttujan kautta)
 
-
 #### API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
 
-* GET: datan haku
-* POST: uusien resurssien luonti
-* PUT: olemassa olevien resurssien päivittäminen
-* DELETE: resurssien poistaminen
-
+- GET: datan haku
+- POST: uusien resurssien luonti
+- PUT: olemassa olevien resurssien päivittäminen
+- DELETE: resurssien poistaminen
 
 #### Virhetilanteita käsitellään HTTPExceptioneilla. API palauttaa selkeät HTTP-statuskoodit, kuten:
+
 - 404 jos resurssia ei löydy
 - 400 virheelliselle syötteelle
 
@@ -144,6 +142,7 @@ fastapi dev app/main.py        # FastAPI CLI
 ```
 
 #### Avaa API-dokumentaatio
+
 http://localhost:8000/docs
 
 ## Ajaminen Dockerilla (PostgreSQL)
@@ -152,21 +151,24 @@ Projekti tukee myös konttipohjaista ajoa Docker Composella, jolloin sovellus k�
 
 #### Käynnistä kontit
 
-````bash
+```bash
 docker compose up -d --build
-````
+```
+
 Tämä käynnistää kaksi konttia:
-  - anturi-api - FastAPI-sovellus portissa 8000
-  - anturi_db - PostgreSQL 16-tietokanta
+
+- anturi-api - FastAPI-sovellus portissa 8000
+- anturi_db - PostgreSQL 16-tietokanta
 
 #### Tarkista tila
 
-````bash
+```bash
 docker compose ps
 docker compose logs api
-````
+```
 
 #### Avaa API-dokumentaatio
+
 http://localhost:8000/docs
 
 ## Ajaminen AWS-Pilvessä
@@ -174,15 +176,18 @@ http://localhost:8000/docs
 Sovellus on deployattu AWS:ään: ECR (image) → ECS/Fargate (kontti) → RDS PostgreSQL (tietokanta) → ALB (julkinen endpoint).
 
 #### Live-endpoint
-````bash
+
+```bash
 http://anturi-api-alb-1717429430.eu-north-1.elb.amazonaws.com/docs
-````
-#### Rakenna & Julkaise 
-````bash
+```
+
+#### Rakenna & Julkaise
+
+```bash
    docker build -t anturi-api .
    docker tag anturi-api:latest <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
    docker push <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
-````
+```
 
 ## 📁 Projektin rakenne
 
@@ -221,6 +226,51 @@ app/
 }
 ```
 
+## MuleSoft-integraatio
+
+Anturi monitorointi
+
+Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi_APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
+
+### Toiminta
+
+Integraatio pollaa Anturi-APIn `/anturit/` -endpointtia 30 sekunnin välein, vertailee jokaisen anturin nykyistä tilaa edelliseen tallennettuun tilaan, ja lähettää Slack-viestin ainoastaan silloin kun tapahtuu oikea tilamuutos — ei jatkuvasti niin kauan kuin anturi pysyy samassa tilassa.
+
+- **normal → error**: WARN-tason hälytysviesti Slackiin
+- **error → normal**: INFO-tason palautumisviesti Slackiin
+- **tila pysyy samana**: ei ilmoitusta
+
+### Arkkitehtuuri
+
+```bash
+Scheduler (30s)
+→ HTTP Request (GET /anturit/)
+→ Transform Message (DataWeave)
+→ For Each (anturi kerrallaan)
+→ Object Store: Retrieve (edellinen tila)
+→ Choice
+├─ When: normal → error → Logger + HTTP Request (Slack ALERT)
+├─ When: error → normal → Logger + HTTP Request (Slack RECOVERY)
+└─ Default: ei toimintaa
+→ Object Store: Store (päivitä nykyinen tila)
+```
+
+Tilanvertailu toteutettu Object Store -connectorilla, koska Mule-flow ei itsessään säilytä tilaa kahden pollauskerran välillä. Slack-integraatio käyttää Incoming Webhookia (HTTP POST + JSON body), koska se ei vaadi erillistä autentikointia tai OAuth-virtaa.
+
+### Teknologiat
+
+- Anypoint Studio / Mule Runtime 4.11
+- DataWeave 2.0
+- Object Store v1/v2 (tilanhallinta)
+- Slack Incoming Webhooks
+
+### Esimerkkiviesti (Slack)
+
+```bash
+ALERT: Anturi PannuHuone (id: 2, lohko: 2) meni error-tilaan!
+RECOVERY: Anturi PannuHuone (id: 2, lohko: 2) palautui normal-tilaan!
+```
+
 ## Tech Stack
 
 - Python
@@ -231,3 +281,5 @@ app/
 - Pytest
 - Docker
 - AWS(ECS/Fargate, RDS, ALB)
+- MuleSoft
+- Slack
