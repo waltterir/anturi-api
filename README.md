@@ -231,7 +231,7 @@ Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi-APIn anturien
 
 ### Toiminta
 
-Integraatio pollaa Anturi-APIn `/anturit/` -endpointtia 30 sekunnin välein, vertailee jokaisen anturin nykyistä tilaa edelliseen tallennettuun tilaan, ja lähettää Slack-viestin ainoastaan silloin kun tapahtuu oikea tilamuutos — ei jatkuvasti niin kauan kuin anturi pysyy samassa tilassa.
+Integraatio pollaa Anturi-APIn `/anturit/` -endpointtia 30 sekunnin välein, vertailee jokaisen anturin nykyistä tilaa edelliseen tallennettuun tilaan, ja lähettää Slack-viestin ainoastaan silloin kun tapahtuu oikea tilamuutos, ei jatkuvasti niin kauan kuin anturi pysyy samassa tilassa.
 
 - **normal → error**: WARN-tason hälytysviesti Slackiin
 - **error → normal**: INFO-tason palautumisviesti Slackiin
@@ -267,6 +267,10 @@ Tilanvertailu toteutettu Object Store -connectorilla, koska Mule-flow ei itsess�
 ALERT: Anturi PannuHuone (id: 2, lohko: 2) meni error-tilaan!
 RECOVERY: Anturi PannuHuone (id: 2, lohko: 2) palautui normal-tilaan!
 ```
+
+### Deployment
+
+Kehitetty ja testattu paikallisesti Anypoint Studiossa, deployattu tuotantoon CloudHubiin. Integraatio pyörii itsenäisesti pilvessä ilman paikallista kehitysympäristöä, testattu ja vahvistettu toimivaksi Slack-hälytyksin sekä CloudHubin omista lokeista.
 
 ## Tech Stack
 
