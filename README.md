@@ -3,10 +3,6 @@
 REST API lämpötila-anturidatan keräämiseen ja hallintaan.
 FastAPI-backend toteutettu alun perin kurssin päättötyönä; AWS-tuotantoympäristö, automaattitestit ja MuleSoft-integraatio rakennettu ja lisätty itsenäisesti kurssin jälkeen.
 
-## Status
-
-Ydinominaisuudet toteutettu
-
 ## Ydinominaisuudet
 
 - Relaationaaliset datamallit (Lohko → Anturi → Mittaus)
@@ -231,7 +227,7 @@ app/
 
 Anturi monitorointi
 
-Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi_APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
+Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi-APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
 
 ### Toiminta
 
