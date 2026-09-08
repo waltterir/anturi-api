@@ -283,4 +283,5 @@ Kehitetty ja testattu paikallisesti Anypoint Studiossa, deployattu tuotantoon Cl
 - Docker
 - AWS(ECS/Fargate, RDS, ALB)
 - MuleSoft
+- CloudHub
 - Slack
