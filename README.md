@@ -2,7 +2,7 @@
 
 REST API lämpötila-antureiden datan keräämiseen ja hallintaan. Antureita hallitaan lohkoittain, mittauksia voi hakea aikavälillä, ja anturin tilamuutoksista jää historia.
 
-Aloitin projektin kurssin päättötyönä. Kurssin jälkeen jatkoin sitä itsenäisesti: lisäsin testit, kontitin sovelluksen, deployasin sen AWS:ään ja rakensin päälle MuleSoft-integraation, joka hälyttää Slackiin. Tavoitteena oli viedä yksi API koko matkan läpi: **rakennettu → testattu → kontitettu → deployattu → integroitu**.
+Aloitin projektin kurssin päättötyönä, jossa tehtävänä oli rakentaa REST API. Kaikki sen jälkeen on omaa jatkokehitystäni, ei osa kurssia: lisäsin testit, kontitin sovelluksen, deployasin sen AWS:ään ja rakensin päälle MuleSoft-integraation, joka hälyttää Slackiin. Seuraavaksi rakennan infran Terraformilla ja CI/CD-putken GitHub Actionsilla. Tavoitteena on viedä yksi API koko matkan läpi: **rakennettu → testattu → kontitettu → deployattu → integroitu**.
 
 ```mermaid
 flowchart LR
@@ -21,11 +21,17 @@ flowchart LR
 
 ## Miksi rakensin sen näin
 
+**Tietomalli ensin paperilla.** Hahmottelin resurssit ja niiden suhteet (Lohko → Anturi → Mittaus) paperille ennen koodia. Endpointit seuraavat samaa rakennetta, esim. `/lohkot/{id}/anturit` ja `/anturit/{id}/mittaus_tulokset`, joten API on ennustettava: kun tuntee yhden resurssin polun, arvaa muutkin.
+
+**Tilamuutokset historiaksi, ei pelkäksi kentäksi.** Anturin nykyinen tila ei kerro, milloin vika alkoi tai kuinka usein anturi on ollut virhetilassa. Siksi jokainen tilamuutos kirjataan omaksi rivikseen, mutta vain kun tila oikeasti muuttuu, jotta historiaan ei kerry toistoa. Sama periaate toimii myöhemmin MuleSoft-integraatiossa.
+
+**SQLite kehityksessä, PostgreSQL muualla.** Tietokanta valitaan `DATABASE_URL`-ympäristömuuttujalla, joten sama koodi toimii paikallisesti ilman asennuksia, Docker Composessa ja AWS:n RDS:ssä. Koodiin ei tarvitse koskea ympäristöä vaihtaessa.
+
 **AWS, vaikka edellinen projektini oli GCP:ssä.** Book API pyöri GCP:n virtuaalikoneella. Tähän halusin toisen pilven ja konttipohjaisen ajon, joten valitsin ECS Fargaten: ei palvelimia ylläpidettäväksi, ja RDS hoitaa PostgreSQL:n.
 
 **Load balancer ECS:n eteen.** Fargate-tehtävän IP vaihtuu joka deployssa. MuleSoft-integraatio tarvitsi pysyvän osoitteen, ja ALB antoi sen. Samalla sain health checkin.
 
-**MuleSoft-integraatio.** Halusin simuloida APIlle oikean käyttäjän, en pelkkää `/docs`-sivua. Integraatio pollaa anturien tilaa ja lähettää Slackiin hälytyksen vain, kun tila oikeasti muuttuu. Se on sama ongelma kuin oikeissa valvontajärjestelmissä: hälytysten pitää olla harvinaisia ja merkityksellisiä.
+**MuleSoft-integraatio.** Halusin APIlle oikean käyttäjän, en pelkkää `/docs`-sivua. Integraatio pollaa anturien tilaa ja lähettää Slackiin hälytyksen vain, kun tila oikeasti muuttuu. Se on sama ongelma kuin oikeissa valvontajärjestelmissä: hälytysten pitää olla harvinaisia ja merkityksellisiä.
 
 **Terraform (seuraavaksi).** AWS-ympäristö oli rakennettu konsolista klikkaamalla. Kun purin sen kustannussyistä, sen uudelleenrakentaminen olisi pitänyt tehdä taas käsin ja muistinvaraisesti, ja käsin rakentaessa pienikin virhe, kuten väärä security group -sääntö, voi kaataa koko ympäristön. Siksi seuraava askel on kirjoittaa infra koodiksi: ympäristö pystytetään ja puretaan yhdellä komennolla, ja jokainen muutos näkyy versionhallinnassa. Valitsin Terraformin, koska infrastruktuuri koodina on taito, jota pilvi- ja integraatiorooleissa kysytään yhä useammin.
 
