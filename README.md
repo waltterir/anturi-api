@@ -110,6 +110,7 @@ uvicorn app.main:app --reload
 ```
 
 Käynnistyksen jälkeen API-dokumentaatio löytyy osoitteesta `http://localhost:8000/docs`.
+
 ![Swagger UI](docs/swagger.png)
 
 ## MuleSoft-integraatio
