@@ -1,287 +1,146 @@
 # Anturi API
 
-REST API lämpötila-anturidatan keräämiseen ja hallintaan.
-FastAPI-backend toteutettu alun perin kurssin päättötyönä; AWS-tuotantoympäristö, automaattitestit ja MuleSoft-integraatio rakennettu ja lisätty itsenäisesti kurssin jälkeen.
+REST API lämpötila-antureiden datan keräämiseen ja hallintaan. Antureita hallitaan lohkoittain, mittauksia voi hakea aikavälillä, ja anturin tilamuutoksista jää historia.
 
-## Ydinominaisuudet
+Aloitin projektin kurssin päättötyönä. Kurssin jälkeen jatkoin sitä itsenäisesti: lisäsin testit, kontitin sovelluksen, deployasin sen AWS:ään ja rakensin päälle MuleSoft-integraation, joka hälyttää Slackiin. Tavoitteena oli viedä yksi API koko matkan läpi: **rakennettu → testattu → kontitettu → deployattu → integroitu**.
 
-- Relaationaaliset datamallit (Lohko → Anturi → Mittaus)
+```mermaid
+flowchart LR
+    U[Käyttäjä / Swagger UI] --> ALB[Application Load Balancer]
+    subgraph AWS [AWS eu-north-1]
+        ALB --> ECS[ECS Fargate<br/>FastAPI-kontti]
+        ECR[(ECR<br/>Docker-image)] -.-> ECS
+        ECS --> RDS[(RDS PostgreSQL)]
+    end
+    subgraph CloudHub [MuleSoft CloudHub]
+        MULE[Anturi-monitorointi<br/>pollaus 30 s]
+    end
+    MULE -->|GET /anturit/| ALB
+    MULE -->|tilamuutos| SLACK[Slack]
+```
 
-- Anturien hallinta:
-  - Anturien haku ja luonti
-  - Yksittäisen anturin mittaustulosten haku
-  - Anturin tilamuutosten seuranta
+## Miksi rakensin sen näin
 
-- Lohkojen hallinta:
-  - Lohkojen luonti
-  - Lohkoon kuuluvien anturien haku
+**AWS, vaikka edellinen projektini oli GCP:ssä.** Book API pyöri GCP:n virtuaalikoneella. Tähän halusin toisen pilven ja konttipohjaisen ajon, joten valitsin ECS Fargaten: ei palvelimia ylläpidettäväksi, ja RDS hoitaa PostgreSQL:n.
 
-- Mittausten hallinta:
-  - Uusien mittausten luonti antureille
-  - Mittausten poistaminen
-  - Mittausten haku anturin perusteella
-  - Aikavälisuodatus mittauksille (start_time, end_time)
+**Load balancer ECS:n eteen.** Fargate-tehtävän IP vaihtuu joka deployssa. MuleSoft-integraatio tarvitsi pysyvän osoitteen, ja ALB antoi sen. Samalla sain health checkin.
 
-- Offset-pohjainen paginointi (page & limit)
+**MuleSoft-integraatio.** Halusin simuloida APIlle oikean käyttäjän, en pelkkää `/docs`-sivua. Integraatio pollaa anturien tilaa ja lähettää Slackiin hälytyksen vain, kun tila oikeasti muuttuu. Se on sama ongelma kuin oikeissa valvontajärjestelmissä: hälytysten pitää olla harvinaisia ja merkityksellisiä.
 
-- Suodatus:
-  - anturit tilan ja mitta-arvojen perusteella
-  - lohkot lohko_id:n perusteella
+**Terraform (seuraavaksi).** AWS-ympäristö oli rakennettu konsolista klikkaamalla. Kun purin sen kustannussyistä, sen uudelleenrakentaminen olisi pitänyt tehdä taas käsin ja muistinvaraisesti, ja käsin rakentaessa pienikin virhe, kuten väärä security group -sääntö, voi kaataa koko ympäristön. Siksi seuraava askel on kirjoittaa infra koodiksi: ympäristö pystytetään ja puretaan yhdellä komennolla, ja jokainen muutos näkyy versionhallinnassa. Valitsin Terraformin, koska infrastruktuuri koodina on taito, jota pilvi- ja integraatiorooleissa kysytään yhä useammin.
+
+**GitHub Actions (seuraavaksi).** Nyt testit ajetaan ja image pushataan käsin. Haluan rakentaa putken, joka vie koodin kehityksestä tuotantoon kuten oikeassa tiimissä: ensimmäisenä testit ajetaan automaattisesti jokaisesta pushista, jotta rikkinäinen koodi jää kiinni ennen kuin se etenee. Sen jälkeen putki rakentaa Docker-imagen ECR:ään ja deployaa sen ECS:ään. CI/CD on taito, jonka haluan hallita pitkällä tähtäimellä, ja tämä projekti on siihen sopiva paikka.
+
+## Mitä opin matkan varrella
+
+- **Tilat Enumiksi.** Aluksi anturin tilaksi kelpasi mikä tahansa merkkijono, myös "Banaani". Enumilla sallitut tilat lukittiin, jolloin virheellinen arvo hylätään jo validoinnissa ja API:n vastaukset ovat ennustettavia.
+- **Response-mallit useammasta kyselystä.** Opin rakentamaan omia vastausmalleja (esim. `AnturiMittausResponse`), joilla yksi endpoint palauttaa yhdistettyä dataa useasta taulusta, esim. anturin tiedot ja sen mittaukset samassa vastauksessa.
+- **Ensimmäinen deploy kaatui**, koska DATABASE_URL-ympäristömuuttujaan oli jäänyt vahingossa kulmasulkeet. Opin lukemaan ECS-tehtävien lokit ja tekemään korjauksen uutena task definition -revisiona.
+- **API ei vastannut ulospäin**, vaikka kontti oli käynnissä. Vika oli ALB:n security groupissa, joka ei sallinut julkista HTTP-liikennettä. Verkkokerros kannattaa tarkistaa ennen sovelluskoodia.
+- **Mule-flow ei muista mitään pollausten välillä.** Tilanvertailua varten tarvitsin Object Storen.
+
+## Tilanne nyt
+
+- [x] API, testit, Docker ja PostgreSQL
+- [x] AWS-deploy (ECR → ECS Fargate → RDS, ALB edessä). Toimi, purettu kustannussyistä.
+- [x] MuleSoft-integraatio CloudHubissa. Toimi AWS-ympäristön kanssa, pysäytetty kunnes infra on rakennettu uudelleen.
+- [ ] AWS-infra koodiksi Terraformilla
+- [ ] CI/CD GitHub Actionsilla
+
+## Ominaisuudet
+
+- Tietomalli: **Lohko → Anturi → Mittaus**
+- Antureiden, lohkojen ja mittausten CRUD
+- Tilamuutosten automaattinen kirjaus (sama tila uudelleen ei luo turhaa merkintää)
+- Mittausten aikavälisuodatus (`start_time`, `end_time`) ja paginointi (`page`, `limit` ≤ 100)
+- Virhetilassa olevan anturin mittauksia ei palauteta (409)
+
+```
+GET /anturit/{anturi_id}/mittaus_tulokset?page=1&limit=10
+```
+
+```json
+{
+  "anturi": {
+    "id": 1,
+    "anturi_name": "Anturi 32",
+    "lohko_id": 1,
+    "tila": "error"
+  },
+  "mittaukset": [
+    {
+      "id": 1,
+      "anturi_id": 1,
+      "mittaus_arvo": 20.5,
+      "aikaleima": "2026-04-02T10:31:26.623000"
+    }
+  ]
+}
+```
 
 ## Testit
 
-Tämä projekti sisältää kattavan automaattisen testikannan, toteutettu pytestillä ja FastAPI:n TestClientillä.
-
-Testien kattavuus
-
-#### Anturit
-
-- Anturin luonti (onnistunut ja virhetilanne: viittaus olemattomaan lohkoon)
-- Anturien haku ja suodatus (id:llä, tilalla)
-- Anturin päivitys, mukaan lukien tilamuutosten automaattinen kirjautuminen
-  - Tilan muuttuessa luodaan tilamuutosmerkintä
-  - Saman tilan asettaminen uudelleen ei luo turhaa merkintää
-- Anturin tilamuutoshistorian haku ja suodatus tilan mukaan
-
-#### Mittaukset
-
-- Mittaustulosten haku anturikohtaisesti, mukaan lukien:
-  - Aikajärjestys (uusin ensin)
-  - Aikavälisuodatus (start_time/end_time) ja virheellisen aikavälin validointi
-  - Paginointi (page & limit) ja rajojen validointi (page < 1, limit < 1, limit > 100)
-  - Virhetilassa olevan anturin mittauksia ei palauteta (409)
-- Mittauksen poisto (onnistunut poisto ja 404 olemattomalle mittaukselle)
-
-#### Lohkot
-
-- Lohkon luonti
-- Lohkoon kuuluvien anturien haku, mukaan lukien:
-  - Tyhjä lista kun lohkolla ei ole antureita
-  - Anturi ilman mittauksia (viimeisin_arvo/aikaleima = null)
-  - Viimeisimmän mittauksen näyttäminen useamman mittauksen joukosta
-  - Useamman anturin listaus samasta lohkosta
-  - 404 olemattomalle lohkolle
-
-Aja testit lokaalisti:
+Pytest + FastAPI TestClient. Testit kattavat onnistuneiden polkujen lisäksi virhetilanteet: olemattomat resurssit (404), virheelliset aikavälit ja paginoinnin rajat, tilamuutoshistorian ja virhetilassa olevan anturin käsittelyn.
 
 ```bash
 python -m pytest -v
 ```
 
-## Vaatimusten täyttyminen
+## Aja paikallisesti
 
-Projektissa on toteutettu kaikki annetut backend-vaatimukset:
-
-#### Hallinta:
-
-- Antureiden lisääminen järjestelmään
-- Anturin tilan muuttaminen
-- Anturin lohkon muuttaminen
-- Yksittäisen mittatuloksen poistaminen
-
-#### Datan haku:
-
-- Kaikkien antureiden listaus (tunniste, lohko ja tila)
-- Lohkokohtainen anturien listaus (sisältäen viimeisimmän mittauksen)
-- Yksittäisen anturin kaikki tiedot (sisältäen mittaukset)
-- Mittausten rajaaminen aikavälille (start_time, end_time)
-- Oletuksena rajattu määrä tuloksia (paginointi)
-
-#### Lisäksi:
-
-- Anturien suodatus tilan mukaan
-- Anturin tilamuutosten seuranta
-- Virhetilassa olevan anturin mittaustuloksia ei palauteta
-
-## Backend ja Arkkitehtuuri
-
-Modulaarinen projektirakenne (crud, database, models, routes) PostgreSQL-integraatio SQLModelin kautta, ajetaan Dockerissa (kehityksessä myös SQLite-tuki DATABASE_URL-ympäristömuuttujan kautta)
-
-#### API noudattaa REST-periaatteita ja käyttää HTTP-metodeja seuraavasti:
-
-- GET: datan haku
-- POST: uusien resurssien luonti
-- PUT: olemassa olevien resurssien päivittäminen
-- DELETE: resurssien poistaminen
-
-#### Virhetilanteita käsitellään HTTPExceptioneilla. API palauttaa selkeät HTTP-statuskoodit, kuten:
-
-- 404 jos resurssia ei löydy
-- 400 virheelliselle syötteelle
-
-Selkeä vastuunjako reitityksen ja tietokantakerroksen välillä
-
-## Käyttöönotto ja ajaminen lokaalisti
-
-1. #### Kopioi repositorio
-   - git clone https://github.com/waltterir/anturi-api.git
-   - cd anturi-api
-
-2. #### Luo ja aktivoi virtuaaliympäristö
-   - python -m venv .venv
-
-   Aktivoi ympäristö:
-
-   Windows:
-   - .venv\Scripts\activate
-
-3. #### Asenna riippuvuudet
-   - pip install -r requirements.txt
-
-4. #### Käynnistä sovellus
-
-```bash
-uvicorn app.main:app --reload  # Suositeltu
-
-# TAI
-
-fastapi dev app/main.py        # FastAPI CLI
-```
-
-#### Avaa API-dokumentaatio
-
-http://localhost:8000/docs
-
-## Ajaminen Dockerilla (PostgreSQL)
-
-Projekti tukee myös konttipohjaista ajoa Docker Composella, jolloin sovellus käyttää SQLiten sijaan PostgreSQL-tietokantaa
-
-#### Käynnistä kontit
+**Docker Composella (PostgreSQL)**, suositeltu:
 
 ```bash
 docker compose up -d --build
 ```
 
-Tämä käynnistää kaksi konttia:
-
-- anturi-api - FastAPI-sovellus portissa 8000
-- anturi_db - PostgreSQL 16-tietokanta
-
-#### Tarkista tila
+**Ilman Dockeria (SQLite):**
 
 ```bash
-docker compose ps
-docker compose logs api
+python -m venv .venv
+.venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
 ```
 
-#### Avaa API-dokumentaatio
-
-http://localhost:8000/docs
-
-## Ajaminen AWS-Pilvessä
-
-Sovellus on deployattu AWS:ään: ECR (image) → ECS/Fargate (kontti) → RDS PostgreSQL (tietokanta) → ALB (julkinen endpoint).
-
-#### Live-endpoint
-
-```bash
-http://anturi-api-alb-1717429430.eu-north-1.elb.amazonaws.com/docs
-```
-
-#### Rakenna & Julkaise
-
-```bash
-   docker build -t anturi-api .
-   docker tag anturi-api:latest <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
-   docker push <account-id>.dkr.ecr.eu-north-1.amazonaws.com/anturi-api:latest
-```
-
-## 📁 Projektin rakenne
-
-```text
-app/
-├── main.py
-├── routes/        # API-endpointit
-├── models/        # Tietokantamallit
-├── crud/          # Tietokanta operaatiot
-├── database/      # DB-alustus
-├── tests/         # Testit
-```
-
-## Esimerkkikutsu
-
-- GET /anturit/{anturi_id}/mittaus_tulokset?page=1&limit=10
-
-## Esimerkkivastaus
-
-```md
-{
-"anturi": {
-"anturi_name": "Anturi 32",
-"lohko_id": 1,
-"tila": "error",
-"id": 1
-},
-"mittaukset": [
-{
-"anturi_id": 1,
-"mittaus_arvo": 20.5,
-"aikaleima": "2026-04-02T10:31:26.623000",
-"id": 1
-}
-]
-}
-```
+API-dokumentaatio: http://localhost:8000/docs
 
 ## MuleSoft-integraatio
 
-Anturi monitorointi
+Erillinen Anypoint-projekti, joka on deployattu CloudHubiin.
 
-Erillinen Anypoint Studio -integraatioprojekti, joka valvoo Anturi-APIn anturien tilaa ja hälyttää automaattisesti Slackiin, kun anturi siirtyy virhetilaan tai palautuu siitä.
-
-### Toiminta
-
-Integraatio pollaa Anturi-APIn `/anturit/` -endpointtia 30 sekunnin välein, vertailee jokaisen anturin nykyistä tilaa edelliseen tallennettuun tilaan, ja lähettää Slack-viestin ainoastaan silloin kun tapahtuu oikea tilamuutos, ei jatkuvasti niin kauan kuin anturi pysyy samassa tilassa.
-
-- **normal → error**: WARN-tason hälytysviesti Slackiin
-- **error → normal**: INFO-tason palautumisviesti Slackiin
-- **tila pysyy samana**: ei ilmoitusta
-
-### Arkkitehtuuri
-
-```bash
-Scheduler (30s)
-→ HTTP Request (GET /anturit/)
-→ Transform Message (DataWeave)
-→ For Each (anturi kerrallaan)
-→ Object Store: Retrieve (edellinen tila)
-→ Choice
-├─ When: normal → error → Logger + HTTP Request (Slack ALERT)
-├─ When: error → normal → Logger + HTTP Request (Slack RECOVERY)
-└─ Default: ei toimintaa
-→ Object Store: Store (päivitä nykyinen tila)
+```
+Scheduler (30 s) → GET /anturit/ → DataWeave
+→ For Each anturi → Object Store: edellinen tila
+→ normal → error:  Slack ALERT
+→ error → normal:  Slack RECOVERY
+→ ei muutosta:     ei viestiä
+→ Object Store: tallenna nykyinen tila
 ```
 
-Tilanvertailu toteutettu Object Store -connectorilla, koska Mule-flow ei itsessään säilytä tilaa kahden pollauskerran välillä. Slack-integraatio käyttää Incoming Webhookia (HTTP POST + JSON body), koska se ei vaadi erillistä autentikointia tai OAuth-virtaa.
+Slack-viestit lähtevät Incoming Webhookilla.
 
-### Teknologiat
-
-- Anypoint Studio / Mule Runtime 4.11
-- DataWeave 2.0
-- Object Store v1/v2 (tilanhallinta)
-- Slack Incoming Webhooks
-
-### Esimerkkiviesti (Slack)
-
-```bash
+```
 ALERT: Anturi PannuHuone (id: 2, lohko: 2) meni error-tilaan!
 RECOVERY: Anturi PannuHuone (id: 2, lohko: 2) palautui normal-tilaan!
 ```
 
-### Deployment
+## Rakenne
 
-Kehitetty ja testattu paikallisesti Anypoint Studiossa, deployattu tuotantoon CloudHubiin. Integraatio pyörii itsenäisesti pilvessä ilman paikallista kehitysympäristöä, testattu ja vahvistettu toimivaksi Slack-hälytyksin sekä CloudHubin omista lokeista.
+```text
+app/
+├── main.py
+├── routes/       # endpointit
+├── models/       # SQLModel-mallit
+├── crud/         # tietokantaoperaatiot
+├── database/     # DB-alustus
+└── tests/        # pytest-testit
+compose.yaml      # API + PostgreSQL paikallisesti
+Dockerfile
+requirements.txt
+pytest.ini
+```
 
-## Tech Stack
+## Teknologiat
 
-- Python
-- FastAPI
-- SQLModel
-- PostgreSQL(tuotanto)
-- SQLite(Paikallinen kehitys)
-- Pytest
-- Docker
-- AWS(ECS/Fargate, RDS, ALB)
-- MuleSoft
-- CloudHub
-- Slack
+Python · FastAPI · SQLModel · PostgreSQL · SQLite · pytest · Docker · AWS (ECR, ECS Fargate, RDS, ALB) · Terraform · MuleSoft (Anypoint, DataWeave, CloudHub) · Slack
