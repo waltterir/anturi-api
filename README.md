@@ -151,4 +151,4 @@ pytest.ini
 
 ## Teknologiat
 
-Python · FastAPI · SQLModel · PostgreSQL · SQLite · pytest · Docker · AWS (ECR, ECS Fargate, RDS, ALB) · Terraform · MuleSoft (Anypoint, DataWeave, CloudHub) · Slack
+Python · FastAPI · SQLModel · PostgreSQL · SQLite · pytest · Docker · AWS (ECR, ECS Fargate, RDS, ALB) · MuleSoft (Anypoint, DataWeave, CloudHub) · Slack
