@@ -16,3 +16,11 @@ __pycache__/
 
 # Editor
 .vscode/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+tfplan
+*.tfplan
+
