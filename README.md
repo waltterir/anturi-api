@@ -27,7 +27,9 @@ flowchart LR
 
 **SQLite kehityksessä, PostgreSQL muualla.** Tietokanta valitaan `DATABASE_URL`-ympäristömuuttujalla, joten sama koodi toimii paikallisesti ilman asennuksia, Docker Composessa ja AWS:n RDS:ssä. Koodiin ei tarvitse koskea ympäristöä vaihtaessa.
 
-**AWS, vaikka edellinen projektini oli GCP:ssä.** Book API pyöri GCP:n virtuaalikoneella. Tähän halusin toisen pilven ja konttipohjaisen ajon, joten valitsin ECS Fargaten: ei palvelimia ylläpidettäväksi, ja RDS hoitaa PostgreSQL:n.
+**AWS, vaikka edellinen projektini oli GCP:ssä.** Book API pyöri GCP:n virtuaalikoneella. Tähän halusin toisen pilven ja konttipohjaisen ajon. RDS hoitaa PostgreSQL:n.
+
+**ECS ja Fargate, koska ne vastaavat projektin kokoa.** Vertasin kolmea tapaa ajaa kontteja AWS:ssä. EC2-virtuaalikoneissa palvelinten ylläpito ja hallinta jäisi minulle, eikä se vastaa näin pienen projektin tarpeita. EKS eli AWS:n hallinnoitu Kubernetes olisi ollut toinen vaihtoehto, mutta se on rakennettu paljon suurempiin ympäristöihin kuin yhteen API-palveluun. Valitsin ECS:n Fargatella: AWS hoitaa konttien alla olevat palvelimet ja niiden hallinnan, joten voin keskittyä sovelluksen kehittämiseen. Ensimmäiseksi konttipohjaiseksi pilviajoksi tämä ratkaisu riitti hyvin.
 
 **Load balancer ECS:n eteen.** Fargate-tehtävän IP vaihtuu joka deployssa. MuleSoft-integraatio tarvitsi pysyvän osoitteen, ja ALB antoi sen. Samalla sain health checkin.
 
