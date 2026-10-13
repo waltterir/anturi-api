@@ -48,4 +48,19 @@ resource "aws_vpc_security_group_egress_rule" "ecs_sends_all" {
 
 }
 
+resource "aws_security_group" "rds" {
+  name        = "anturi-api-rds"
+  description = "Anturi API RDS: allows inbound 5432 from ECS tasks only, no outbound traffic"
+  vpc_id      = data.aws_vpc.default_vpc.id
+  tags = {
+    Name = "anturi-api-rds"
+  }
+}
 
+resource "aws_vpc_security_group_ingress_rule" "rds_allow_traffic_from_ecs" {
+  security_group_id            = aws_security_group.rds.id
+  referenced_security_group_id = aws_security_group.ecs.id
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
+}
