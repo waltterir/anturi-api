@@ -17,11 +17,11 @@ resource "aws_vpc_security_group_ingress_rule" "alb_http_in" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "alb_to_app" {
-  security_group_id = aws_security_group.alb.id
-  ip_protocol       = "tcp"
-  from_port         = 8000
-  to_port           = 8000
-  cidr_ipv4         = "0.0.0.0/0"
+  security_group_id            = aws_security_group.alb.id
+  ip_protocol                  = "tcp"
+  from_port                    = 8000
+  to_port                      = 8000
+  referenced_security_group_id = aws_security_group.ecs.id
 }
 
 resource "aws_security_group" "ecs" {
