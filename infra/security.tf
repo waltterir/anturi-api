@@ -1,0 +1,25 @@
+resource "aws_security_group" "alb" {
+  name        = "anturi-api-alb"
+  description = "alb anturi API security group, allows traffic in port 80, allows traffic out 8000"
+  vpc_id      = data.aws_vpc.default_vpc.id
+
+  tags = {
+    Name = "anturi-api-alb"
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "alb_http_in" {
+  security_group_id = aws_security_group.alb.id
+  ip_protocol       = "tcp"
+  from_port         = 80
+  to_port           = 80
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+resource "aws_vpc_security_group_egress_rule" "alb_to_app" {
+  security_group_id = aws_security_group.alb.id
+  ip_protocol       = "tcp"
+  from_port         = 8000
+  to_port           = 8000
+  cidr_ipv4         = "0.0.0.0/0"
+}
