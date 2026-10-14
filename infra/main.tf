@@ -1,3 +1,4 @@
+# tallennetaan imaget reqisteryyn
 resource "aws_ecr_repository" "anturi_api" {
   name                 = "anturi-api"
   image_tag_mutability = "MUTABLE"
@@ -7,3 +8,4 @@ resource "aws_ecr_repository" "anturi_api" {
     scan_on_push = true
   }
 }
+
