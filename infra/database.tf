@@ -14,6 +14,7 @@ resource "aws_db_instance" "anturi_api_db_instance" {
   engine                      = "postgres"
   engine_version              = "16"
   allocated_storage           = 20
+  storage_encrypted           = true
   username                    = "waltterir"
   db_subnet_group_name        = aws_db_subnet_group.anturi_api_db_subnets_group.name
   vpc_security_group_ids      = [aws_security_group.rds.id]
