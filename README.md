@@ -43,6 +43,8 @@ Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos n
 
 **GitHub Actions (seuraavaksi).** Nyt testit ajetaan ja image pushataan käsin. Haluan rakentaa putken, joka vie koodin kehityksestä tuotantoon kuten oikeassa tiimissä: ensimmäisenä testit ajetaan automaattisesti jokaisesta pushista, jotta rikkinäinen koodi jää kiinni ennen kuin se etenee. Sen jälkeen putki rakentaa Docker-imagen ECR:ään ja deployaa sen ECS:ään. CI/CD on taito, jonka haluan hallita pitkällä tähtäimellä, ja tämä projekti on siihen sopiva paikka.
 
+**Työskentelytapa.** Rakensin jokaisen Terraform-resurssin itse Terraform Registryn dokumentaation pohjalta enkä valmiista tutoriaalista, joten jouduin ymmärtämään, mitä kukin argumentti tekee. Esimerkiksi target groupin `target_type = "ip"` ja security group -sääntöjen tekeminen erillisinä resursseina löytyivät dokumentaatiosta, eivät esimerkeistä. Opettajana käytin Claudea: pyysin selityksiä ja vihjeitä valmiin koodin sijaan, ja se tarkisti kirjoittamani koodin ja kertoi, mikä siinä oli vialla ja miksi. Kirjoitin infran ja sovelluksen muutokset itse.
+
 ## Mitä opin matkan varrella
 
 ### Sovellus
