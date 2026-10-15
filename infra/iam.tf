@@ -26,3 +26,22 @@ resource "aws_iam_role_policy_attachment" "anturi_api_role_policy" {
   role       = aws_iam_role.anturi_api_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
+
+# sallii execution rolen lukea RDS:n salasanan Secrets Managerista
+resource "aws_iam_role_policy" "read_db_secret" {
+  name = "anturi-api-read-db-secret"
+  role = aws_iam_role.anturi_api_role.name
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Effect   = "Allow"
+        Resource = aws_db_instance.anturi_api_db_instance.master_user_secret[0].secret_arn
+      }
+    ]
+  })
+}
