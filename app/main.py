@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from .routes import anturit, lohkot, mittaukset
 from .database.database import create_db_and_tables
+from fastapi.responses import JSONResponse
 
 
 @asynccontextmanager
@@ -13,3 +14,10 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(anturit.router)
 app.include_router(lohkot.router)
 app.include_router(mittaukset.router)
+
+@app.get("/health")
+async def health_check():
+    return JSONResponse(
+        content={"status": "healthy"},
+        status_code=200
+    )

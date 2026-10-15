@@ -41,3 +41,26 @@ resource "aws_ecs_task_definition" "anturi_api_task_definition" {
     ]
   }])
 }
+
+resource "aws_ecs_service" "anturi_api_ecs_service" {
+  name            = "anturi-api-service"
+  cluster         = aws_ecs_cluster.anturi_api_cluster.id
+  task_definition = aws_ecs_task_definition.anturi_api_task_definition.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = data.aws_subnets.default_subnets.ids
+    security_groups  = [aws_security_group.ecs.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.anturi_api_aws_lb_target_group.arn
+    container_name   = "anturi-api-container"
+    container_port   = 8000
+  }
+  depends_on = [
+    aws_iam_role_policy.read_db_secret, aws_lb_listener.anturi_api_lb_listener
+  ]
+}
