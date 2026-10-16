@@ -61,6 +61,7 @@ Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos n
 - **Viittaukset ratkaisevat järjestyksen.** Kun resurssi viittaa toisen attribuuttiin (esim. task definition RDS:n osoitteeseen), Terraform päättelee luonti- ja purkujärjestyksen itse. Kovakoodattu arvo rikkoisi tämän.
 - **Health check tarvitsee oman reitin.** ALB merkitsi kontin sairaaksi, koska juuripolkua `/` ei ollut. Lisäsin `/health`-endpointin testeineen.
 - **Jumittunut state-lukko.** Keskeytynyt `terraform init` jätti lukkotiedoston S3:een. Varmistin, ettei muita ajoja ollut käynnissä, ja poistin lukon manuaalisesti.
+- **Salasana pois task definitionista.** Käsin tehdyssä deployssa tietokannan salasana oli selkokielisenä ECS:n task definitionissa. Siirsin sen Secrets Manageriin, josta ECS hakee sen käynnistyksessä. AWS:n generoimassa salasanassa voi olla `@`- ja `/`-merkkejä, jotka rikkoisivat yhteysosoitteen, joten sovellus muuntaa salasanan URL-turvalliseksi `quote_plus`-funktiolla.
 
 ## Tilanne nyt
 
@@ -153,16 +154,18 @@ terraform output alb_url                                 # Swaggerin osoite
 terraform destroy                                        # purku, kun ympäristöä ei tarvita
 ```
 
-| Tiedosto                      | Sisältö                                        |
-| ----------------------------- | ---------------------------------------------- |
-| `versions.tf`, `providers.tf` | provider ja S3-backend                         |
-| `network.tf`                  | default VPC ja aliverkot (data sources)        |
-| `security.tf`                 | security groupit ALB:lle, ECS:lle ja RDS:lle   |
-| `iam.tf`                      | ECS:n execution role ja salaisuuden lukuoikeus |
-| `database.tf`                 | RDS PostgreSQL ja subnet group                 |
-| `ecs.tf`                      | klusteri, task definition ja service           |
-| `alb.tf`                      | load balancer, target group ja listener        |
-| `logs.tf`                     | CloudWatch log group, 3 päivän säilytys        |
+| Tiedosto                      | Sisältö                                                                          |
+| ----------------------------- | -------------------------------------------------------------------------------- |
+| `versions.tf`, `providers.tf` | provider ja backend-asetus (state tallennetaan erillisen projektin S3-bucketiin) |
+| `main.tf`                     | ECR-repo Docker-imagelle                                                         |
+| `network.tf`                  | default VPC ja aliverkot (data sources)                                          |
+| `security.tf`                 | security groupit ALB:lle, ECS:lle ja RDS:lle                                     |
+| `iam.tf`                      | ECS:n execution role ja salaisuuden lukuoikeus                                   |
+| `database.tf`                 | RDS PostgreSQL ja subnet group                                                   |
+| `ecs.tf`                      | klusteri, task definition ja service                                             |
+| `alb.tf`                      | load balancer, target group ja listener                                          |
+| `logs.tf`                     | CloudWatch log group, 3 päivän säilytys                                          |
+| `outputs.tf`                  | ECR:n osoite ja Swaggerin URL                                                    |
 
 ## MuleSoft-integraatio
 
