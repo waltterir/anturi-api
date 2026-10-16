@@ -1,8 +1,11 @@
 # Anturi API
 
+![CI](https://github.com/waltterir/anturi-api/actions/workflows/ci.yml/badge.svg)
+![Terraform Validate](https://github.com/waltterir/anturi-api/actions/workflows/terraform.yml/badge.svg)
+
 REST API lämpötila-antureiden datan keräämiseen ja hallintaan. Antureita hallitaan lohkoittain, mittauksia voi hakea aikavälillä, ja anturin tilamuutoksista jää historia.
 
-Aloitin projektin kurssin päättötyönä, jossa tehtävänä oli rakentaa REST API. Kaikki sen jälkeen on omaa jatkokehitystäni, ei osa kurssia: lisäsin testit, kontitin sovelluksen, deployasin sen AWS:ään ja rakensin päälle MuleSoft-integraation, joka hälyttää Slackiin. Käsin konsolista rakennettu ympäristö kulutti turhaan kuluja, joten purin sen ja rakensin koko AWS-infran uudelleen koodina Terraformilla. Seuraavaksi rakennan CI/CD-putken GitHub Actionsilla. Tavoitteena on viedä yksi API koko matkan läpi: **rakennettu → testattu → kontitettu → deployattu → integroitu → infra koodina → automatisoitu. Automatisointivaihe työn alla.**
+Aloitin projektin kurssin päättötyönä, jossa tehtävänä oli rakentaa REST API. Kaikki sen jälkeen on omaa jatkokehitystäni, ei osa kurssia: lisäsin testit, kontitin sovelluksen, deployasin sen AWS:ään ja rakensin päälle MuleSoft-integraation, joka hälyttää Slackiin. Käsin konsolista rakennettu ympäristö kulutti turhaan kuluja, joten purin sen ja rakensin koko AWS-infran uudelleen koodina Terraformilla. Testit ja Terraform-tarkistukset ajetaan nyt automaattisesti GitHub Actionsilla, ja seuraavaksi automatisoin deployn. Tavoitteena on viedä yksi API koko matkan läpi: **rakennettu → testattu → kontitettu → deployattu → integroitu → infra koodina → automatisoitu. CI valmis, deployn automatisointi työn alla.**
 
 ```mermaid
 flowchart LR
@@ -41,7 +44,7 @@ flowchart LR
 
 Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos näkyy versionhallinnassa, ja `terraform plan` näyttää muutokset ennen kuin mitään tapahtuu. Valitsin Terraformin, koska infrastruktuuri koodina on taito, jota pilvi- ja integraatiorooleissa kysytään yhä useammin.
 
-**GitHub Actions (seuraavaksi).** Nyt testit ajetaan ja image pushataan käsin. Haluan rakentaa putken, joka vie koodin kehityksestä tuotantoon kuten oikeassa tiimissä: ensimmäisenä testit ajetaan automaattisesti jokaisesta pushista, jotta rikkinäinen koodi jää kiinni ennen kuin se etenee. Sen jälkeen putki rakentaa Docker-imagen ECR:ään ja deployaa sen ECS:ään. CI/CD on taito, jonka haluan hallita pitkällä tähtäimellä, ja tämä projekti on siihen sopiva paikka.
+**GitHub Actions.** Testit ajetaan automaattisesti jokaisesta pushista ja pull requestista, jotta rikkinäinen koodi jää kiinni ennen kuin se etenee. Infra-koodille on oma workflow, joka tarkistaa Terraformin muotoilun ja syntaksin, ja se ajetaan vain, kun `infra/`-kansio muuttuu. Tarkistukset eivät tarvitse AWS-tunnuksia, koska `terraform init -backend=false` lataa providerin ilman yhteyttä state-bucketiin. Seuraavaksi putki saa AWS-oikeudet OIDC:llä ilman tallennettuja avaimia, ja ympäristön pystytys ja purku siirtyvät koneeltani GitHub Actionsiin.
 
 **Työskentelytapa.** Rakensin jokaisen Terraform-resurssin itse Terraform Registryn dokumentaation pohjalta enkä valmiista tutoriaalista, joten jouduin ymmärtämään, mitä kukin argumentti tekee. Esimerkiksi target groupin `target_type = "ip"` ja security group -sääntöjen tekeminen erillisinä resursseina löytyivät dokumentaatiosta, eivät esimerkeistä. Opettajana käytin Claudea: pyysin selityksiä ja vihjeitä valmiin koodin sijaan, ja se tarkisti kirjoittamani koodin ja kertoi, mikä siinä oli vialla ja miksi. Kirjoitin infran ja sovelluksen muutokset itse.
 
@@ -62,6 +65,7 @@ Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos n
 - **Health check tarvitsee oman reitin.** ALB merkitsi kontin sairaaksi, koska juuripolkua `/` ei ollut. Lisäsin `/health`-endpointin testeineen.
 - **Jumittunut state-lukko.** Keskeytynyt `terraform init` jätti lukkotiedoston S3:een. Varmistin, ettei muita ajoja ollut käynnissä, ja poistin lukon manuaalisesti.
 - **Salasana pois task definitionista.** Käsin tehdyssä deployssa tietokannan salasana oli selkokielisenä ECS:n task definitionissa. Siirsin sen Secrets Manageriin, josta ECS hakee sen käynnistyksessä. AWS:n generoimassa salasanassa voi olla `@`- ja `/`-merkkejä, jotka rikkoisivat yhteysosoitteen, joten sovellus muuntaa salasanan URL-turvalliseksi `quote_plus`-funktiolla.
+- **CI paljastaa sen, minkä oma kone piilottaa.** CI-palvelin on Linux, joten `Terraform` isolla alkukirjaimella ei toiminut, vaikka Windowsissa se toimi. Tarkistin myös, että CI oikeasti pysäyttää virheet, rikkomalla yhden testin tarkoituksella ja katsomalla, että ajo muuttuu punaiseksi.
 
 ## Tilanne nyt
 
@@ -69,7 +73,8 @@ Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos n
 - [x] AWS-deploy käsin (ECR → ECS Fargate → RDS, ALB edessä). Purettu kustannussyistä.
 - [x] MuleSoft-integraatio CloudHubissa. Pysäytetty, kun ympäristö ei ole pystyssä.
 - [x] AWS-infra koodiksi Terraformilla. Pystytetään ja puretaan tarpeen mukaan.
-- [ ] CI/CD GitHub Actionsilla
+- [x] CI GitHub Actionsilla: testit ja Terraform-tarkistukset jokaisessa pushissa
+- [ ] Deploy GitHub Actionsista (OIDC, image ECR:ään, Terraform apply ja destroy)
 
 ## Ominaisuudet
 
@@ -106,6 +111,7 @@ GET /anturit/{anturi_id}/mittaus_tulokset?page=1&limit=10
 ## Testit
 
 Pytest + FastAPI TestClient. Testit kattavat onnistuneiden polkujen lisäksi virhetilanteet: olemattomat resurssit (404), virheelliset aikavälit ja paginoinnin rajat, tilamuutoshistorian ja virhetilassa olevan anturin käsittelyn, lisäksi tietokantaosoitteen valinnan kaikilla neljällä haaralla ja `/health`-endpointin.
+Testit ajetaan automaattisesti GitHub Actionsissa jokaisesta pushista ja pull requestista (`.github/workflows/ci.yml`).
 
 ```bash
 python -m pytest -v
@@ -190,6 +196,8 @@ RECOVERY: Anturi PannuHuone (id: 2, lohko: 2) palautui normal-tilaan!
 ## Rakenne
 
 ```text
+.github/
+└── workflows/    # CI: testit ja Terraform-tarkistukset
 app/
 ├── main.py
 ├── routes/       # endpointit
@@ -206,4 +214,4 @@ pytest.ini
 
 ## Teknologiat
 
-Python · FastAPI · SQLModel · PostgreSQL · SQLite · pytest · Docker · Terraform · AWS (ECR, ECS Fargate, RDS, ALB, Secrets Manager, CloudWatch, IAM) · MuleSoft (Anypoint, DataWeave, CloudHub) · Slack
+Python · FastAPI · SQLModel · PostgreSQL · SQLite · pytest · Docker · Terraform · GitHub Actions · AWS (ECR, ECS Fargate, RDS, ALB, Secrets Manager, CloudWatch, IAM) · MuleSoft (Anypoint, DataWeave, CloudHub) · Slack
