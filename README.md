@@ -42,7 +42,7 @@ flowchart LR
 
 **Terraform.** AWS-ympäristö oli alun perin rakennettu konsolista klikkaamalla, ja se kulutti noin 60 $ kuukaudessa ilman, että huomasin sitä. Purin sen ja rakensin saman uudelleen koodina. Ennen uudelleenrakennusta tein erillisen [terraform-aws-practice](https://github.com/waltterir/terraform-aws-practice)-projektin, jossa rakensin S3-bucketin Terraformin statelle ja siirsin sen oman staten paikallisesta tiedostosta S3:een. Samalla opettelin Terraformin peruskierron ja staten hallinnan. Sama bucket toimii nyt tämän projektin staten säilönä.
 
-Nyt ympäristö pystytetään ja puretaan yhdellä komennolla, jokainen muutos näkyy versionhallinnassa, ja `terraform plan` näyttää muutokset ennen kuin mitään tapahtuu. Valitsin Terraformin, koska infrastruktuuri koodina on taito, jota pilvi- ja integraatiorooleissa kysytään yhä useammin.
+Nyt ympäristö pystytetään koodista muutamalla komennolla ja puretaan yhdellä, jokainen muutos näkyy versionhallinnassa, ja terraform plan näyttää muutokset ennen kuin mitään tapahtuu.
 
 **GitHub Actions.** Testit ajetaan automaattisesti jokaisesta pushista ja pull requestista, jotta rikkinäinen koodi jää kiinni ennen kuin se etenee. Infra-koodille on oma workflow, joka tarkistaa Terraformin muotoilun ja syntaksin, ja se ajetaan vain, kun `infra/`-kansio muuttuu. Tarkistukset eivät tarvitse AWS-tunnuksia, koska `terraform init -backend=false` lataa providerin ilman yhteyttä state-bucketiin. Seuraavaksi putki saa AWS-oikeudet OIDC:llä ilman tallennettuja avaimia, ja ympäristön pystytys ja purku siirtyvät koneeltani GitHub Actionsiin.
 
